@@ -22,6 +22,8 @@ import AppUnavailable from '@/app/components/app-unavailable'
 import { API_KEY, APP_ID, APP_INFO, isShowPrompt, promptTemplate } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
+import VideoPlayer from './videoplayer'
+import ContextUI from './contextui'
 
 const Main: FC = () => {
   const { t } = useTranslation()
@@ -47,7 +49,7 @@ const Main: FC = () => {
 
   useEffect(() => {
     if (APP_INFO?.title)
-      document.title = `${APP_INFO.title} - Powered by Dify`
+      document.title = `${APP_INFO.title}`
   }, [APP_INFO?.title])
 
   // onData change thought (the produce obj). https://github.com/immerjs/immer/issues/576
@@ -609,6 +611,33 @@ const Main: FC = () => {
   if (!APP_ID || !APP_INFO || !promptConfig)
     return <Loading type='app' />
 
+  // const playerRef = React.useRef(null);
+
+  const videoJsOptions = {
+    // autoplay: true,
+    controls: true,
+    responsive: true,
+    fluid: true,
+    sources: [{
+      src: '/class/self_introduction.mp4',
+      type: 'video/mp4'
+    }]
+  };
+
+  const handlePlayerReady = (player) => {
+
+    // playerRef.current = player;
+
+    // You can handle player events here, for example:
+    player.on('waiting', () => {
+      videojs.log('player is waiting');
+    });
+
+    player.on('dispose', () => {
+      videojs.log('player will dispose');
+    });
+  };
+
   return (
     <div className='bg-gray-100'>
       <Header
@@ -619,7 +648,7 @@ const Main: FC = () => {
       />
       <div className="flex rounded-t-2xl bg-white overflow-hidden">
         {/* sidebar */}
-        {!isMobile && renderSidebar()}
+        {/* {!isMobile && renderSidebar()}
         {isMobile && isShowSidebar && (
           <div className='fixed inset-0 z-50'
             style={{ backgroundColor: 'rgba(35, 56, 118, 0.2)' }}
@@ -629,7 +658,7 @@ const Main: FC = () => {
               {renderSidebar()}
             </div>
           </div>
-        )}
+        )} */}
         {/* main */}
         <div className='flex-grow flex flex-col h-[calc(100vh_-_3rem)] overflow-y-auto'>
           <ConfigSence
@@ -646,16 +675,31 @@ const Main: FC = () => {
 
           {
             hasSetInputs && (
-              <div className='relative grow h-[200px] pc:w-[794px] max-w-full mobile:w-full pb-[66px] mx-auto mb-3.5 overflow-hidden'>
+              <div className='relative grow h-[200px] max-w-full mobile:w-full mx-auto mb-3.5 overflow-hidden flex mb-3.5'>
                 <div className='h-full overflow-y-auto' ref={chatListDomRef}>
-                  <Chat
-                    chatList={chatList}
-                    onSend={handleSend}
-                    onFeedback={handleFeedback}
-                    isResponsing={isResponsing}
-                    checkCanSend={checkCanSend}
-                    visionConfig={visionConfig}
-                  />
+                  <div className='app-container interaction-mode'>
+                    <div className="left-top">
+                      <VideoPlayer options={videoJsOptions} onReady={handlePlayerReady} />
+                    </div>
+
+                    <div className="left-bottom">
+                      <ContextUI
+                        startNewConversation={() => handleConversationIdChange('-1')}
+                      />
+                    </div>
+
+                    <div className="right">
+                      <Chat
+                        chatList={chatList}
+                        onSend={handleSend}
+                        onFeedback={handleFeedback}
+                        isResponsing={isResponsing}
+                        checkCanSend={checkCanSend}
+                        visionConfig={visionConfig}
+                      />
+                    </div>
+
+                  </div>
                 </div>
               </div>)
           }
