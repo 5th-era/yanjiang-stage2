@@ -17,6 +17,7 @@ const translation = {
     configDisabled:
       'Previous session settings have been used for this session.',
     startChat: 'Start Chat',
+    startClass: 'Start Class',
     privacyPolicyLeft:
       'Please read the ',
     privacyPolicyMiddle:

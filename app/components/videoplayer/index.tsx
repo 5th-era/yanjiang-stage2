@@ -47,11 +47,11 @@ export const VideoPlayer = (props) => {
                 // }
 
                 // 切换播放状态
-                if (player.paused()) {
-                    player.play();
-                } else {
-                    player.pause();
-                }
+                // if (player.paused()) {
+                //     player.play();
+                // } else {
+                //     player.pause();
+                // }
             }
         };
 
