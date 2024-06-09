@@ -31,6 +31,39 @@ export const VideoPlayer = (props) => {
         }
     }, [options, onReady]);
 
+    React.useEffect(() => {
+        const player = playerRef.current;
+
+        // 键盘事件处理函数
+        const handleKeyDown = (event) => {
+            if (event.code === 'Space') {
+                event.preventDefault(); // 防止页面滚动
+
+                // // 切换全屏状态
+                // if (player.isFullscreen()) {
+                //     player.exitFullscreen();
+                // } else {
+                //     player.requestFullscreen();
+                // }
+
+                // 切换播放状态
+                if (player.paused()) {
+                    player.play();
+                } else {
+                    player.pause();
+                }
+            }
+        };
+
+        // 监听键盘事件
+        document.addEventListener('keydown', handleKeyDown);
+
+        // 清理事件监听器
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []);
+
     // Dispose the Video.js player when the functional component unmounts
     React.useEffect(() => {
         const player = playerRef.current;

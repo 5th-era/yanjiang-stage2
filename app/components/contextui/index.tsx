@@ -8,8 +8,8 @@ function ContextUI({ startNewConversation }: { startNewConversation: () => void 
         <div className="context-container">
             <Button
                 onClick={() => startNewConversation()}
-                className="group block  !justify-start !h-9 text-primary-600 items-right text-sm mt-auto">
-                <PencilSquareIcon className="mr-2 h-4 w-4" /> {t('app.chat.newChat')}
+                className="group block !h-9 text-primary-600 items-right text-sm mt-auto">
+                <PencilSquareIcon className="mr-2 h-4 w-4" /> {t('app.chat.reselectCourses')}
             </Button>
         </div>
     );

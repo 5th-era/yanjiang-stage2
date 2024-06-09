@@ -83,6 +83,15 @@ const Chat: FC<IChatProps> = ({
     onClear,
   } = useImageFiles()
 
+  const containerRef = useRef(null);
+  // 使用 useEffect 在 chatList 更新时滚动到底部
+  useEffect(() => {
+    if (containerRef.current) {
+      // 将滚动条滚动到容器的底部
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  }, [chatList]); // chatList 是依赖项，当它变化时，useEffect 函数将重新执行
+
   const handleSend = () => {
     if (!valid() || (checkCanSend && !checkCanSend()))
       return
@@ -118,7 +127,7 @@ const Chat: FC<IChatProps> = ({
   }
 
   return (
-    <div className={cn(!feedbackDisabled && 'px-3.5', 'h-full', 'overflow-y-auto', 'flex', 'flex-col')}>
+    <div ref={containerRef} className={cn(!feedbackDisabled && 'px-3.5', 'h-full', 'overflow-y-auto', 'flex', 'flex-col')}>
       {/* Chat List */}
       <div className="space-y-[30px] mb-10">
         {chatList.map((item) => {

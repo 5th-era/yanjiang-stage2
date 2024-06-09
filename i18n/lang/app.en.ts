@@ -6,6 +6,7 @@ const translation = {
   },
   chat: {
     newChat: 'New chat',
+    reselectCourses: 'Reselect Courses',
     newChatDefaultName: 'New conversation',
     openingStatementTitle: 'Opening statement',
     powerBy: 'Powered by',
