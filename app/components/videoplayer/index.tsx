@@ -26,8 +26,8 @@ export const VideoPlayer = (props) => {
         } else {
             const player = playerRef.current;
 
-            player.autoplay(options.autoplay);
-            player.src(options.sources);
+            // player.autoplay(options.autoplay);
+            // player.src(options.sources);
         }
     }, [options, onReady]);
 

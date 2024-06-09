@@ -24,6 +24,8 @@ import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
 import VideoPlayer from './videoplayer'
 import ContextUI from './contextui'
+import videojs from 'video.js'
+import 'video.js/dist/video-js.css';
 
 const Main: FC = () => {
   const { t } = useTranslation()
@@ -172,6 +174,7 @@ const Main: FC = () => {
   */
   const [chatList, setChatList, getChatList] = useGetState<ChatItem[]>([])
   const chatListDomRef = useRef<HTMLDivElement>(null)
+  // const playerRef = useRef(null)
   useEffect(() => {
     // scroll to bottom
     if (chatListDomRef.current)
@@ -614,7 +617,7 @@ const Main: FC = () => {
   // const playerRef = React.useRef(null);
 
   const videoJsOptions = {
-    // autoplay: true,
+    autoplay: false,
     controls: true,
     responsive: true,
     fluid: true,
@@ -625,10 +628,6 @@ const Main: FC = () => {
   };
 
   const handlePlayerReady = (player) => {
-
-    // playerRef.current = player;
-
-    // You can handle player events here, for example:
     player.on('waiting', () => {
       videojs.log('player is waiting');
     });
