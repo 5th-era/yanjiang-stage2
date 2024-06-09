@@ -622,7 +622,7 @@ const Main: FC = () => {
     responsive: true,
     fluid: true,
     sources: [{
-      src: '/class/self_introduction.mp4',
+      src: 'http://dev.d5j.tech:8010/class/self_introduction.mp4',
       type: 'video/mp4'
     }]
   };
