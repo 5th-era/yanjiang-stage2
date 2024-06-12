@@ -160,11 +160,11 @@ const Chat: FC<IChatProps> = ({
                 visionConfig?.enabled && (
                   <>
                     <div className='absolute bottom-2 left-2 flex items-center'>
-                      <ChatImageUploader
+                      {/* <ChatImageUploader
                         settings={visionConfig}
                         onUpload={onUpload}
                         disabled={files.length >= visionConfig.number_limits}
-                      />
+                      /> */}
                       <div className='mx-1 w-[1px] h-4 bg-black/5' />
                     </div>
                     <div className='pl-[52px]'>

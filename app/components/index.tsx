@@ -674,7 +674,7 @@ const Main: FC = () => {
 
           {
             hasSetInputs && (
-              <div className='relative grow h-[200px] max-w-full mobile:w-full mx-auto mb-3.5 overflow-hidden flex mb-3.5'>
+              <div className='relative grow max-w-full h-[200px] mb-2'>
                 <div className='h-full overflow-y-auto' ref={chatListDomRef}>
                   <div className='app-container interaction-mode'>
                     <div className="left-top">
