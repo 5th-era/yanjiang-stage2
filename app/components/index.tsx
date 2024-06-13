@@ -622,7 +622,7 @@ const Main: FC = () => {
     responsive: true,
     fluid: true,
     sources: [{
-      src: 'http://dev.d5j.tech:8010/class/self_introduction.mp4',
+      src: 'https://d5j-ai-speech.oss-rg-china-mainland.aliyuncs.com/self_introduction_1.mp4',
       type: 'video/mp4'
     }]
   };
