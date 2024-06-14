@@ -20,6 +20,7 @@ const translation = {
     privacyPolicyLeft: '请阅读由该应用开发者提供的',
     privacyPolicyMiddle: '隐私政策',
     privacyPolicyRight: '。',
+    screenShot: '获取当前课件的截图',
   },
   errorMessage: {
     valueOfVarRequired: '变量值必填',

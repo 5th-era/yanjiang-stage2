@@ -26,6 +26,7 @@ import VideoPlayer from './videoplayer'
 import ContextUI from './contextui'
 import videojs from 'video.js'
 import 'video.js/dist/video-js.css';
+import { useImageFiles } from '@/app/components/base/image-uploader/hooks'
 
 const Main: FC = () => {
   const { t } = useTranslation()
@@ -81,6 +82,16 @@ const Main: FC = () => {
     setNewConversationInfo,
     setExistConversationInfo,
   } = useConversation()
+
+  const {
+    files,
+    onUpload,
+    onRemove,
+    onReUpload,
+    onImageLinkLoadError,
+    onImageLinkLoadSuccess,
+    onClear,
+  } = useImageFiles()
 
   const [conversationIdChangeBecauseOfNew, setConversationIdChangeBecauseOfNew, getConversationIdChangeBecauseOfNew] = useGetState(false)
   const [isChatStarted, { setTrue: setChatStarted, setFalse: setChatNotStarted }] = useBoolean(false)
@@ -622,7 +633,8 @@ const Main: FC = () => {
     responsive: true,
     fluid: true,
     sources: [{
-      src: 'https://d5j-ai-speech.oss-rg-china-mainland.aliyuncs.com/self_introduction_1.mp4',
+      // src: 'https://speech-d5j-tech.oss-cn-beijing.aliyuncs.com/class/self_introduction.mp4',
+      src: '/class/self_introduction.mp4',
       type: 'video/mp4'
     }]
   };
@@ -678,7 +690,7 @@ const Main: FC = () => {
                 <div className='h-full overflow-y-auto' ref={chatListDomRef}>
                   <div className='app-container interaction-mode'>
                     <div className="left-top">
-                      <VideoPlayer options={videoJsOptions} onReady={handlePlayerReady} />
+                      <VideoPlayer options={videoJsOptions} onReady={handlePlayerReady} onUpload={onUpload} files={files} />
                     </div>
 
                     <div className="left-bottom">
@@ -695,6 +707,13 @@ const Main: FC = () => {
                         isResponsing={isResponsing}
                         checkCanSend={checkCanSend}
                         visionConfig={visionConfig}
+                        files={files}
+                        onUpload={onUpload}
+                        onRemove={onRemove}
+                        onReUpload={onReUpload}
+                        onImageLinkLoadError={onImageLinkLoadError}
+                        onImageLinkLoadSuccess={onImageLinkLoadSuccess}
+                        onClear={onClear}
                       />
                     </div>
 

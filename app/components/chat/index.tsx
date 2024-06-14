@@ -34,6 +34,13 @@ export type IChatProps = {
   isResponsing?: boolean
   controlClearQuery?: number
   visionConfig?: VisionSettings
+  files,
+  onUpload,
+  onRemove,
+  onReUpload,
+  onImageLinkLoadError,
+  onImageLinkLoadSuccess,
+  onClear,
 }
 
 const Chat: FC<IChatProps> = ({
@@ -47,6 +54,13 @@ const Chat: FC<IChatProps> = ({
   isResponsing,
   controlClearQuery,
   visionConfig,
+  files,
+  onUpload,
+  onRemove,
+  onReUpload,
+  onImageLinkLoadError,
+  onImageLinkLoadSuccess,
+  onClear,
 }) => {
   const { t } = useTranslation()
   const { notify } = Toast
@@ -74,15 +88,15 @@ const Chat: FC<IChatProps> = ({
     if (controlClearQuery)
       setQuery('')
   }, [controlClearQuery])
-  const {
-    files,
-    onUpload,
-    onRemove,
-    onReUpload,
-    onImageLinkLoadError,
-    onImageLinkLoadSuccess,
-    onClear,
-  } = useImageFiles()
+  // const {
+  //   files,
+  //   onUpload,
+  //   onRemove,
+  //   onReUpload,
+  //   onImageLinkLoadError,
+  //   onImageLinkLoadSuccess,
+  //   onClear,
+  // } = useImageFiles()
 
   const containerRef = useRef(null);
   // 使用 useEffect 在 chatList 更新时滚动到底部
@@ -160,7 +174,7 @@ const Chat: FC<IChatProps> = ({
               {
                 visionConfig?.enabled && (
                   <>
-                    {/* <div className='absolute bottom-2 left-2 flex items-center'>
+                    {/* <div className='bottom-2 left-2 flex items-center'>
                       <ChatImageUploader
                         settings={visionConfig}
                         onUpload={onUpload}

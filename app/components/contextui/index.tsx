@@ -11,6 +11,13 @@ function ContextUI({ startNewConversation }: { startNewConversation: () => void 
                 className="group block !h-9 text-primary-600 items-right text-sm mt-auto">
                 <PencilSquareIcon className="mr-2 h-4 w-4" /> {t('app.chat.reselectCourses')}
             </Button>
+            <Button
+                onClick={() => {
+                    document.getElementById('screenshotButton').click();
+                }}
+                className="group block !h-9 text-primary-600 items-right text-sm mt-auto">
+                <PencilSquareIcon className="mr-2 h-4 w-4" /> {t('app.chat.screenShot')}
+            </Button>
         </div>
     );
 }
