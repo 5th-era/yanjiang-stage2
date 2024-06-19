@@ -21,6 +21,7 @@ const translation = {
     privacyPolicyMiddle: '隐私政策',
     privacyPolicyRight: '。',
     screenShot: '获取当前课件的截图',
+    tryToAsk: '试着问问',
   },
   errorMessage: {
     valueOfVarRequired: '变量值必填',

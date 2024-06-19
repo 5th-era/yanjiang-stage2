@@ -10,7 +10,7 @@ import Toast from '@/app/components/base/toast'
 import Sidebar from '@/app/components/sidebar'
 import ConfigSence from '@/app/components/config-scence'
 import Header from '@/app/components/header'
-import { fetchAppParams, fetchChatList, fetchConversations, generationConversationName, sendChatMessage, updateFeedback } from '@/service'
+import { fetchAppParams, fetchChatList, fetchConversations, fetchSuggestedQuestions, generationConversationName, sendChatMessage, updateFeedback } from '@/service'
 import type { ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
 import Chat from '@/app/components/chat'
@@ -102,6 +102,8 @@ const Main: FC = () => {
     setChatStarted()
     // parse variables in introduction
     setChatList(generateNewChatListWithOpenstatement('', inputs))
+    setSuggestQuestions(suggestQuestions_open)
+    setIsShowSuggestion(true)
   }
   const hasSetInputs = (() => {
     if (!isNewConversation)
@@ -178,6 +180,7 @@ const Main: FC = () => {
     // trigger handleConversationSwitch
     setCurrConversationId(id, APP_ID)
     hideSidebar()
+    setIsShowSuggestion(false)
   }
 
   /*
@@ -244,7 +247,11 @@ const Main: FC = () => {
         const isNotNewConversation = conversations.some(item => item.id === _conversationId)
 
         // fetch new conversation info
-        const { user_input_form, opening_statement: introduction, file_upload, system_parameters }: any = appParams
+        const { user_input_form, opening_statement: introduction, file_upload, system_parameters, suggested_questions }: any = appParams
+        // console.log("suggested_questions: ", suggested_questions)
+        setSuggestQuestions_open(suggested_questions)
+        setSuggestQuestions(suggested_questions)
+
         setLocaleOnClient(APP_INFO.default_language, true)
         setNewConversationInfo({
           name: t('app.chat.newChatDefaultName'),
@@ -305,6 +312,10 @@ const Main: FC = () => {
 
   const [controlFocus, setControlFocus] = useState(0)
   const [openingSuggestedQuestions, setOpeningSuggestedQuestions] = useState<string[]>([])
+  const [suggestQuestions, setSuggestQuestions] = useState<string[]>([])
+  const [suggestQuestions_open, setSuggestQuestions_open] = useState<string[]>([])
+  const [isShowSuggestion, setIsShowSuggestion] = useState(true)
+  const doShowSuggestion = isShowSuggestion && !isResponsing
   const [messageTaskId, setMessageTaskId] = useState('')
   const [hasStopResponded, setHasStopResponded, getHasStopResponded] = useGetState(false)
   const [isResponsingConIsCurrCon, setIsResponsingConCurrCon, getIsResponsingConIsCurrCon] = useGetState(true)
@@ -390,7 +401,9 @@ const Main: FC = () => {
     const prevTempNewConversationId = getCurrConversationId() || '-1'
     let tempNewConversationId = ''
 
+    setHasStopResponded(false)
     setResponsingTrue()
+    setIsShowSuggestion(false)
     sendChatMessage(data, {
       getAbortController: (abortController) => {
         setAbortController(abortController)
@@ -442,6 +455,11 @@ const Main: FC = () => {
         resetNewConversationInputs()
         setChatNotStarted()
         setCurrConversationId(tempNewConversationId, APP_ID, true)
+        if (!getHasStopResponded()) {
+          const { data }: any = await fetchSuggestedQuestions(responseItem.id)
+          setSuggestQuestions(data)
+          setIsShowSuggestion(true)
+        }
         setResponsingFalse()
       },
       onFile(file) {
@@ -696,6 +714,9 @@ const Main: FC = () => {
                     <div className="left-bottom">
                       <ContextUI
                         startNewConversation={() => handleConversationIdChange('-1')}
+                        suggestedQuestions={suggestQuestions}
+                        isShowSuggestion={doShowSuggestion}
+                        onSend={handleSend}
                       />
                     </div>
 
@@ -714,6 +735,8 @@ const Main: FC = () => {
                         onImageLinkLoadError={onImageLinkLoadError}
                         onImageLinkLoadSuccess={onImageLinkLoadSuccess}
                         onClear={onClear}
+                        suggestedQuestions={suggestQuestions}
+                        isShowSuggestion={doShowSuggestion}
                       />
                     </div>
 

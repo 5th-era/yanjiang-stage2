@@ -16,6 +16,7 @@ import ChatImageUploader from '@/app/components/base/image-uploader/chat-image-u
 import ImageList from '@/app/components/base/image-uploader/image-list'
 import { useImageFiles } from '@/app/components/base/image-uploader/hooks'
 import { XCircle } from '@/app/components/base/icons/solid/general'
+import TryToAsk from '@/app/components/chat/try-to-ask'
 
 export type IChatProps = {
   chatList: ChatItem[]
@@ -41,6 +42,8 @@ export type IChatProps = {
   onImageLinkLoadError,
   onImageLinkLoadSuccess,
   onClear,
+  suggestedQuestions,
+  isShowSuggestion,
 }
 
 const Chat: FC<IChatProps> = ({
@@ -61,6 +64,8 @@ const Chat: FC<IChatProps> = ({
   onImageLinkLoadError,
   onImageLinkLoadSuccess,
   onClear,
+  suggestedQuestions,
+  isShowSuggestion,
 }) => {
   const { t } = useTranslation()
   const { notify } = Toast
@@ -167,6 +172,14 @@ const Chat: FC<IChatProps> = ({
           )
         })}
       </div>
+      {/* {
+        isShowSuggestion && !!suggestedQuestions?.length && (
+          <TryToAsk
+            suggestedQuestions={suggestedQuestions}
+            onSend={onSend}
+          />
+        )
+      } */}
       {
         !isHideSendInput && (
           <div className={cn(!feedbackDisabled && '!left-3.5 !right-3.5', 'z-10 bottom-0 left-0 right-0 mt-auto')}>
