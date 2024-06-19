@@ -1,0 +1,12 @@
+下一步建议的三个问题，是由dify控制的，如果要定制，需注意下面几个方面：
+1. 产生下一步建议的问题用的llm应该是系统级的llm，并不是当前bot所选用的llm；
+2. 所用的prompt是固定的，位于dify代码库中的位置如下：
+    api/core/llm_generator/prompts.py文件中的变量SUGGESTED_QUESTIONS_AFTER_ANSWER_INSTRUCTION_PROMPT；
+3. 如果要修改，可以直接修改docker中对应的文件/app/api/core/llm_generator/prompts.py，修改步骤如下：
+    - 在本地准备好修改过后的prompts.py；
+    - 删除docker中的缓存，命令为：sudo docker exec docker-api-1 rm -rf /app/api/core/llm_generator/__pycache__/
+    - 把更新的的prompts.py复制到docker 容器中：sudo docker cp ../api/core/llm_generator/prompts.py docker-api-1:/app/api/core/llm_generator/pro
+mpts.py
+    - 检查文件是否已更新：sudo docker exec docker-api-1 cat /app/api/core/llm_generator/prompts.py
+    - 重启docker中的api服务：sudo docker compose restart api
+    - 调试好后，可以把修改提交到镜像文件中去，一劳永逸
