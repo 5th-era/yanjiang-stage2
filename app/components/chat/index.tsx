@@ -218,7 +218,7 @@ const Chat: FC<IChatProps> = ({
                   onKeyUp={handleKeyUp}
                   onKeyDown={handleKeyDown}
                   autoSize
-                  placeholder="遇到问题，在这里直接问。"
+                  placeholder="有问题，直接问。"
                   style={{ fontSize: '20px', fontWeight: 'bold' }}
                 />
                 <div className="bottom-2 right-6 flex items-center h-8">

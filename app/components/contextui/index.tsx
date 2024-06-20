@@ -12,7 +12,7 @@ function ContextUI({
 }) {
     return (
         <div className="context-container flex flex-col justify-center">
-            <div className='flex justify-center space-x-3 mt-3 '>
+            <div className='flex justify-center space-x-3 mt-1 '>
                 <Button
                     onClick={() => startNewConversation()}
                     className="group block !h-9 bg-white-200 items-right text-sm mt-auto font-bold border border-black-500">
