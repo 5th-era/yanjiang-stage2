@@ -15,16 +15,16 @@ function ContextUI({
             <div className='flex justify-center space-x-3 mt-3 '>
                 <Button
                     onClick={() => startNewConversation()}
-                    className="group block !h-9 bg-gray-200 items-right text-sm mt-auto font-bold">
+                    className="group block !h-9 bg-white-200 items-right text-sm mt-auto font-bold border border-black-500">
                     {t('app.chat.reselectCourses')}
                 </Button>
-                <Button
+                {/* <Button
                     onClick={() => {
                         document.getElementById('screenshotButton').click();
                     }}
-                    className="group block !h-9 bg-gray-200 items-right text-sm mt-auto font-bold text-black">
+                    className="group block !h-9 bg-white-200 items-right text-sm mt-auto font-bold  border border-red-500">
                     {t('app.chat.screenShot')}
-                </Button>
+                </Button> */}
             </div>
             <div className='flex justify-center space-x-3 mb-3 '>
                 {

@@ -20,9 +20,9 @@ const Question: FC<IQuestionProps> = ({ id, content, useCurrentUserAvatar, imgSr
           <div
             className={'mr-2 py-3 px-4 bg-blue-500 rounded-tl-2xl rounded-b-2xl'}
           >
-            {imgSrcs && imgSrcs.length > 0 && (
+            {/* {imgSrcs && imgSrcs.length > 0 && (
               <ImageGallery srcs={imgSrcs} />
-            )}
+            )} */}
             <Markdown content={content} />
           </div>
         </div>
