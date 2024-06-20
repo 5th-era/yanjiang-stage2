@@ -17,7 +17,7 @@ const TryToAsk: FC<TryToAskProps> = ({
 
     return (
         <div>
-            <div className='flex items-center mb-2.5 py-2'>
+            <div className='flex items-center mt-2.5 mb-2.5 py-2'>
                 <div
                     className='grow h-[1px]'
                     style={{

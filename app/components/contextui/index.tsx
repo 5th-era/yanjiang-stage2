@@ -15,14 +15,14 @@ function ContextUI({
             <div className='flex justify-center space-x-3 mt-3 '>
                 <Button
                     onClick={() => startNewConversation()}
-                    className="group block !h-9 text-yellow-500 bg-gray-200 items-right text-sm mt-auto font-bold">
+                    className="group block !h-9 bg-gray-200 items-right text-sm mt-auto font-bold">
                     {t('app.chat.reselectCourses')}
                 </Button>
                 <Button
                     onClick={() => {
                         document.getElementById('screenshotButton').click();
                     }}
-                    className="group block !h-9 text-yellow-500 bg-gray-200 items-right text-sm mt-auto font-bold text-black">
+                    className="group block !h-9 bg-gray-200 items-right text-sm mt-auto font-bold text-black">
                     {t('app.chat.screenShot')}
                 </Button>
             </div>

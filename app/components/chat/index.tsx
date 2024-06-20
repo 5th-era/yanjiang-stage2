@@ -110,7 +110,7 @@ const Chat: FC<IChatProps> = ({
       // 将滚动条滚动到容器的底部
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
-  }, [chatList]); // chatList 是依赖项，当它变化时，useEffect 函数将重新执行
+  }, [chatList, files]); // chatList 是依赖项，当它变化时，useEffect 函数将重新执行
 
   const handleSend = () => {
     if (!valid() || (checkCanSend && !checkCanSend()))
@@ -147,9 +147,9 @@ const Chat: FC<IChatProps> = ({
   }
 
   return (
-    <div ref={containerRef} className={cn(!feedbackDisabled && 'px-3.5', 'h-full', 'overflow-y-auto', 'flex', 'flex-col')}>
+    <div className={cn(!feedbackDisabled && 'px-3.5', 'h-full', 'flex', 'flex-col')}>
       {/* Chat List */}
-      <div className="space-y-[30px] mb-10">
+      <div ref={containerRef} className="space-y-[30px] mb-10 overflow-y-auto overflow-x-hidden">
         {chatList.map((item) => {
           if (item.isAnswer) {
             const isLast = item.id === chatList[chatList.length - 1].id
@@ -183,7 +183,7 @@ const Chat: FC<IChatProps> = ({
       {
         !isHideSendInput && (
           <div className={cn(!feedbackDisabled && '!left-3.5 !right-3.5', 'z-10 bottom-0 left-0 right-0 mt-auto')}>
-            <div className='p-[5.5px] max-h-[150px] bg-white border-[1.5px] border-gray-200 rounded-xl overflow-y-auto'>
+            <div className='p-[5.5px] max-h-[150px] bg-white border-[2.5px] border-yellow-600 rounded-xl overflow-y-auto'>
               {
                 visionConfig?.enabled && (
                   <>
@@ -207,51 +207,53 @@ const Chat: FC<IChatProps> = ({
                   </>
                 )
               }
-              <Textarea
-                className={`
+              <div className='flex items-center justify-between'>
+                <Textarea
+                  className={`
                   block w-full px-2 pr-[118px] py-[7px] leading-5 max-h-none text-sm text-gray-700 outline-none appearance-none resize-none 
                   ${visionConfig?.enabled && 'pl-12'}
                 `}
-                value={query}
-                onChange={handleContentChange}
-                onKeyUp={handleKeyUp}
-                onKeyDown={handleKeyDown}
-                autoSize
-                placeholder="遇到问题，在这里直接问。"
-                style={{ fontSize: '20px', fontWeight: 'bold' }}
-              />
-              <div className="bottom-2 right-6 flex items-center h-8">
-                <div className={`${s.count} mr-4 h-5 leading-5 text-sm bg-gray-50 text-gray-500`}>{query.trim().length}</div>
-                {
-                  query
-                    ? (
-                      <div className='flex justify-center items-center ml-2 w-8 h-8 cursor-pointer hover:bg-gray-100 rounded-lg' onClick={() => setQuery('')}>
-                        <XCircle className='w-4 h-4 text-[#98A2B3]' />
-                      </div>
-                    )
-                    : false
+                  value={query}
+                  onChange={handleContentChange}
+                  onKeyUp={handleKeyUp}
+                  onKeyDown={handleKeyDown}
+                  autoSize
+                  placeholder="遇到问题，在这里直接问。"
+                  style={{ fontSize: '20px', fontWeight: 'bold' }}
+                />
+                <div className="bottom-2 right-6 flex items-center h-8">
+                  <div className={`${s.count} mr-4 h-5 leading-5 text-sm bg-gray-50 text-gray-500`}>{query.trim().length}</div>
+                  {
+                    query
                       ? (
-                        <div
-                          className='group flex justify-center items-center ml-2 w-10 h-10 hover:bg-primary-50 rounded-lg cursor-pointer'
-                          onClick={handleVoiceInputShow}
-                        >
-                          <Microphone01 className='block w-10 h-10 text-gray-500 group-hover:hidden' />
-                          <Microphone01Solid className='hidden w-10 h-10 text-primary-600 group-hover:block' />
+                        <div className='flex justify-center items-center ml-2 w-8 h-8 cursor-pointer hover:bg-gray-100 rounded-lg' onClick={() => setQuery('')}>
+                          <XCircle className='w-4 h-4 text-[#98A2B3]' />
                         </div>
                       )
-                      : null
-                }
-                <Tooltip
-                  selector='send-tip'
-                  htmlContent={
-                    <div>
-                      <div>{t('common.operation.send')} Enter</div>
-                      <div>{t('common.operation.lineBreak')} Shift Enter</div>
-                    </div>
+                      : false
+                        ? (
+                          <div
+                            className='group flex justify-center items-center ml-2 w-10 h-10 hover:bg-primary-50 rounded-lg cursor-pointer'
+                            onClick={handleVoiceInputShow}
+                          >
+                            <Microphone01 className='block w-10 h-10 text-gray-500 group-hover:hidden' />
+                            <Microphone01Solid className='hidden w-10 h-10 text-primary-600 group-hover:block' />
+                          </div>
+                        )
+                        : null
                   }
-                >
-                  <div className={`${s.sendBtn} w-10 h-10 cursor-pointer rounded-md`} onClick={handleSend}></div>
-                </Tooltip>
+                  <Tooltip
+                    selector='send-tip'
+                    htmlContent={
+                      <div>
+                        <div>{t('common.operation.send')} Enter</div>
+                        <div>{t('common.operation.lineBreak')} Shift Enter</div>
+                      </div>
+                    }
+                  >
+                    <div className={`${s.sendBtn} w-10 h-10 cursor-pointer rounded-md`} onClick={handleSend}></div>
+                  </Tooltip>
+                </div>
               </div>
             </div>
           </div>
