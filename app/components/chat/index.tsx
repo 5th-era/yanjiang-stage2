@@ -44,6 +44,7 @@ export type IChatProps = {
   onClear,
   suggestedQuestions,
   isShowSuggestion,
+  player,
 }
 
 const Chat: FC<IChatProps> = ({
@@ -66,16 +67,24 @@ const Chat: FC<IChatProps> = ({
   onClear,
   suggestedQuestions,
   isShowSuggestion,
+  player,
 }) => {
   const { t } = useTranslation()
   const { notify } = Toast
   const isUseInputMethod = useRef(false)
 
   const [query, setQuery] = React.useState('')
+
   const handleContentChange = (e: any) => {
     const value = e.target.value
     setQuery(value)
   }
+
+  const getCurrentTime = () => {
+    if (player) {
+      return player.currentTime().toFixed(2);
+    }
+  };
 
   const logError = (message: string) => {
     notify({ type: 'error', message, duration: 3000 })
@@ -115,7 +124,9 @@ const Chat: FC<IChatProps> = ({
   const handleSend = () => {
     if (!valid() || (checkCanSend && !checkCanSend()))
       return
-    onSend(query, files.filter(file => file.progress !== -1).map(fileItem => ({
+    const query1 = `当前视频时间戳：${getCurrentTime()} \n ${query}`
+    // console.log(query1)
+    onSend(query1, files.filter(file => file.progress !== -1).map(fileItem => ({
       type: 'image',
       transfer_method: fileItem.type,
       url: fileItem.url,
@@ -165,7 +176,8 @@ const Chat: FC<IChatProps> = ({
             <Question
               key={item.id}
               id={item.id}
-              content={item.content}
+              // content={item.content}
+              content={item.content.split('\n').filter(line => !line.startsWith("当前视频时间戳")).join('\n')}
               useCurrentUserAvatar={useCurrentUserAvatar}
               imgSrcs={(item.message_files && item.message_files?.length > 0) ? item.message_files.map(item => item.url) : []}
             />

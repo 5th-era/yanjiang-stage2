@@ -93,6 +93,7 @@ const Main: FC = () => {
     onClear,
   } = useImageFiles()
 
+  const [player_instance, setPlayer_instance] = useState(null);
   const [conversationIdChangeBecauseOfNew, setConversationIdChangeBecauseOfNew, getConversationIdChangeBecauseOfNew] = useGetState(false)
   const [isChatStarted, { setTrue: setChatStarted, setFalse: setChatNotStarted }] = useBoolean(false)
   const handleStartChat = (inputs: Record<string, any>) => {
@@ -658,6 +659,7 @@ const Main: FC = () => {
   };
 
   const handlePlayerReady = (player) => {
+    setPlayer_instance(player);
     player.on('waiting', () => {
       videojs.log('player is waiting');
     });
@@ -737,6 +739,7 @@ const Main: FC = () => {
                         onClear={onClear}
                         suggestedQuestions={suggestQuestions}
                         isShowSuggestion={doShowSuggestion}
+                        player={player_instance}
                       />
                     </div>
 
