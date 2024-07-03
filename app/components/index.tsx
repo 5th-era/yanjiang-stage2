@@ -655,7 +655,14 @@ const Main: FC = () => {
       // src: 'https://speech-d5j-tech.oss-cn-beijing.aliyuncs.com/class/self_introduction.mp4',
       src: '/class/self_introduction.mp4',
       type: 'video/mp4'
-    }]
+    }],
+    chapters: [
+      { time: 0, label: '自我介绍的必要性' },
+      { time: 68, label: '五字法' },
+      { time: 475, label: '三个标签法' },
+      { time: 836, label: '2N法' },
+      { time: 952, label: '练习与总结' },
+    ],
   };
 
   const handlePlayerReady = (player) => {

@@ -10,6 +10,9 @@ export const VideoPlayer = (props) => {
     const canvasRef = React.useRef(null);
     const imgRef = React.useRef(null);
     const { options, onReady, onUpload, files } = props;
+    const [videoDuration, setVideoDuration] = React.useState(0);
+    const [currentTime, setCurrentTime] = React.useState(0);
+    const [hoveredChapter, setHoveredChapter] = React.useState(null);
 
     React.useEffect(() => {
         // Make sure Video.js player is only initialized once
@@ -25,6 +28,13 @@ export const VideoPlayer = (props) => {
                 onReady && onReady(player);
             });
 
+            player.on('loadedmetadata', () => {
+                setVideoDuration(player.duration());
+            });
+
+            player.on('timeupdate', () => {
+                setCurrentTime(player.currentTime());
+            });
             // You could update an existing player in the `else` block here
             // on prop change, for example:
         } else {
@@ -147,10 +157,64 @@ export const VideoPlayer = (props) => {
         }
     };
 
+    const jumpTo = (time) => {
+        if (playerRef.current) {
+            playerRef.current.currentTime(time);
+            playerRef.current.play();
+        }
+    };
+
+    const getChapterBackground = (chapterStart, chapterEnd) => {
+        if (currentTime >= chapterEnd) {
+            return '#555'; // Fully played chapters are grey
+        } else if (currentTime <= chapterStart) {
+            return '#000'; // Not yet played chapters are black
+        } else {
+            const progress = ((currentTime - chapterStart) / (chapterEnd - chapterStart)) * 100;
+            return `linear-gradient(to right, #555 ${progress}%, #000 ${progress}%)`;
+        }
+    };
+
     return (
         <div className='video-player-container interaction-mode'>
             <div data-vjs-player>
                 <div ref={videoRef} />
+            </div>
+            <div className="chapters">
+                {options.chapters.map((chapter, index) => {
+                    const nextChapter = options.chapters[index + 1];
+                    const chapterEnd = nextChapter ? nextChapter.time : videoDuration;
+                    const chapterDuration = chapterEnd - chapter.time;
+                    const widthPercent = (chapterDuration / videoDuration) * 100;
+                    const isHovered = hoveredChapter === index;
+                    const marginRight = index < options.chapters.length - 1 ? 1 : 0; // 最后一个章节没有右侧边距
+
+                    return (
+                        <div
+                            key={index}
+                            onClick={() => jumpTo(chapter.time)}
+                            style={{
+                                flex: `0 0 calc(${widthPercent}% - ${1 / options.chapters.length}%)`, // 调整宽度以留出1px的空白
+                                cursor: 'pointer',
+                                transition: 'background-color 0.3s, color 0.3s',
+                                background: isHovered ? '#777' : getChapterBackground(chapter.time, chapterEnd),
+                                color: '#fff',
+                                textAlign: 'center',
+                                padding: '10px 0', // 仅顶部和底部填充
+                                overflow: 'hidden',
+                                whiteSpace: 'nowrap',
+                                textOverflow: 'ellipsis',
+                                position: 'relative',
+                                marginRight: `${marginRight}px`, // 添加1px的空白，除了最后一个章节
+                            }}
+                            title={chapter.label} // 使用title属性在悬停时显示完整文本
+                            onMouseEnter={() => setHoveredChapter(index)}
+                            onMouseLeave={() => setHoveredChapter(null)}
+                        >
+                            {chapter.label}
+                        </div>
+                    );
+                })}
             </div>
             <button id="screenshotButton" style={{ display: 'none' }} onClick={handleScreenshot}>Take Screenshot</button>
             <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>

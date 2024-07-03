@@ -177,6 +177,20 @@ a {
   display: block;
 }
 
+.chapters {
+  display: flex;
+  justify-content: space-around;
+  background-color: #fff;
+  color: #fff;
+  bottom: 0;
+  width: 100%;
+}
+
+.chapters div:hover {
+  background-color: #555;
+  color: #fff;
+}
+
 /* 针对手机设备的布局 */
 @media (max-width: 768px) {
   .interaction-mode {
