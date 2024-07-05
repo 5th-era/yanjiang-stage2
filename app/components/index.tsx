@@ -10,7 +10,7 @@ import Toast from '@/app/components/base/toast'
 import Sidebar from '@/app/components/sidebar'
 import ConfigSence from '@/app/components/config-scence'
 import Header from '@/app/components/header'
-import { fetchAppParams, fetchChatList, fetchConversations, fetchSuggestedQuestions, generationConversationName, sendChatMessage, updateFeedback } from '@/service'
+import { fetchAppParams, fetchChatList, fetchConversations, fetchSuggestedQuestions, generationConversationName, sendChatMessage, updateFeedback, updateContextUI } from '@/service'
 import type { ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
 import Chat from '@/app/components/chat'
@@ -184,6 +184,7 @@ const Main: FC = () => {
     setIsShowSuggestion(false)
   }
 
+  const contextUIRef = useRef();
   /*
   * chat info. chat is under conversation.
   */
@@ -462,6 +463,7 @@ const Main: FC = () => {
           setIsShowSuggestion(true)
         }
         setResponsingFalse()
+        callUpdateContextUI("用户提了新的问题", "chat_new")
       },
       onFile(file) {
         const lastThought = responseItem.agent_thoughts?.[responseItem.agent_thoughts?.length - 1]
@@ -668,12 +670,18 @@ const Main: FC = () => {
   const handlePlayerReady = (player) => {
     setPlayer_instance(player);
     player.on('waiting', () => {
-      videojs.log('player is waiting');
+      // videojs.log('player is waiting');
     });
 
     player.on('dispose', () => {
-      videojs.log('player will dispose');
+      // videojs.log('player will dispose');
     });
+  };
+
+  const callUpdateContextUI = (query, event) => {
+    if (contextUIRef.current) {
+      contextUIRef.current.update_contextUI(query, event);
+    }
   };
 
   return (
@@ -717,15 +725,25 @@ const Main: FC = () => {
                 <div className='h-full overflow-y-auto' ref={chatListDomRef}>
                   <div className='app-container interaction-mode'>
                     <div className="left-top">
-                      <VideoPlayer options={videoJsOptions} onReady={handlePlayerReady} onUpload={onUpload} files={files} />
+                      <VideoPlayer
+                        options={videoJsOptions}
+                        onReady={handlePlayerReady}
+                        onUpload={onUpload}
+                        files={files}
+                        updateContextUI={callUpdateContextUI}
+                      />
                     </div>
 
                     <div className="left-bottom">
                       <ContextUI
+                        ref={contextUIRef}
                         startNewConversation={() => handleConversationIdChange('-1')}
                         suggestedQuestions={suggestQuestions}
                         isShowSuggestion={doShowSuggestion}
                         onSend={handleSend}
+                        updateContextUI={updateContextUI}
+                        player={player_instance}
+                        chatList={chatList}
                       />
                     </div>
 
@@ -747,6 +765,7 @@ const Main: FC = () => {
                         suggestedQuestions={suggestQuestions}
                         isShowSuggestion={doShowSuggestion}
                         player={player_instance}
+                        updateContextUI={callUpdateContextUI}
                       />
                     </div>
 

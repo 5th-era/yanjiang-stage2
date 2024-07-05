@@ -9,10 +9,11 @@ export const VideoPlayer = (props) => {
     const playerRef = React.useRef(null);
     const canvasRef = React.useRef(null);
     const imgRef = React.useRef(null);
-    const { options, onReady, onUpload, files } = props;
+    const { options, onReady, onUpload, files, updateContextUI } = props;
     const [videoDuration, setVideoDuration] = React.useState(0);
     const [currentTime, setCurrentTime] = React.useState(0);
     const [hoveredChapter, setHoveredChapter] = React.useState(null);
+    const timeoutRef = React.useRef(null);
 
     React.useEffect(() => {
         // Make sure Video.js player is only initialized once
@@ -24,7 +25,7 @@ export const VideoPlayer = (props) => {
             videoRef.current.appendChild(videoElement);
 
             const player = playerRef.current = videojs(videoElement, options, () => {
-                videojs.log('player is ready');
+                // videojs.log('player is ready');
                 onReady && onReady(player);
             });
 
@@ -34,6 +35,27 @@ export const VideoPlayer = (props) => {
 
             player.on('timeupdate', () => {
                 setCurrentTime(player.currentTime());
+            });
+
+            // 监听暂停事件
+            player.on('pause', () => {
+                if (timeoutRef.current) {
+                    clearTimeout(timeoutRef.current);
+                }
+                timeoutRef.current = setTimeout(() => {
+                    updateContextUI("用户暂停了视频", "video_pause");
+                    timeoutRef.current = null; // 清除 timeoutRef 的值
+                }, 500);
+            });
+
+            player.on('seeked', () => {
+                if (timeoutRef.current) {
+                    clearTimeout(timeoutRef.current);
+                }
+                timeoutRef.current = setTimeout(() => {
+                    updateContextUI("用户拖动了视频", "video_seek");
+                    timeoutRef.current = null; // 清除 timeoutRef 的值
+                }, 500);
             });
             // You could update an existing player in the `else` block here
             // on prop change, for example:

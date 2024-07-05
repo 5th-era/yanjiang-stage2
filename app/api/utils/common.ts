@@ -19,3 +19,4 @@ export const setSession = (sessionId: string) => {
 }
 
 export const client = new ChatClient(API_KEY, API_URL || undefined)
+export const client_contextUI = new ChatClient('app-EAkiW8KWxKwGvTREuw33UQPP', API_URL || undefined)

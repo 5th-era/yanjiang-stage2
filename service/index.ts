@@ -40,6 +40,44 @@ export const sendChatMessage = async (
   }, { onData, onCompleted, onThought, onFile, onError, getAbortController, onMessageEnd, onMessageReplace, onNodeStarted, onWorkflowStarted, onWorkflowFinished, onNodeFinished })
 }
 
+export const updateContextUI = async (
+  body: Record<string, any>,
+  {
+    onData,
+    onCompleted,
+    onThought,
+    onFile,
+    onError,
+    getAbortController,
+    onMessageEnd,
+    onMessageReplace,
+    onWorkflowStarted,
+    onNodeStarted,
+    onNodeFinished,
+    onWorkflowFinished,
+  }: {
+    onData: IOnData
+    onCompleted: IOnCompleted
+    onFile: IOnFile
+    onThought: IOnThought
+    onMessageEnd: IOnMessageEnd
+    onMessageReplace: IOnMessageReplace
+    onError: IOnError
+    getAbortController?: (abortController: AbortController) => void
+    onWorkflowStarted: IOnWorkflowStarted
+    onNodeStarted: IOnNodeStarted
+    onNodeFinished: IOnNodeFinished
+    onWorkflowFinished: IOnWorkflowFinished
+  },
+) => {
+  return ssePost('contextUI', {
+    body: {
+      ...body,
+      response_mode: 'streaming',
+    },
+  }, { onData, onCompleted, onThought, onFile, onError, getAbortController, onMessageEnd, onMessageReplace, onNodeStarted, onWorkflowStarted, onWorkflowFinished, onNodeFinished })
+}
+
 export const fetchConversations = async () => {
   return get('conversations', { params: { limit: 100, first_id: '' } })
 }
