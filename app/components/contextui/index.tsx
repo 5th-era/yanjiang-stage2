@@ -5,7 +5,9 @@ import { t } from 'i18next';
 import TryToAsk from '../chat/try-to-ask';
 import { updateContextUI } from '@/service';
 import { ChatItem } from '@/types/app';
-
+import PPT_contents from '../../../public/class/PPT_contents.json'
+import Video_chapters from '../../../public/class/video_chapters.json'
+import Transcript_contents from '../../../public/class/transcript_contents.json'
 
 const ContextUI = forwardRef(({
     startNewConversation,
@@ -15,8 +17,45 @@ const ContextUI = forwardRef(({
     updateContextUI,
     player,
     chatList,
+    currInputs,
 }, ref) => {
-    const [responseContent, setResponseContent] = React.useState('');
+    const [responseContent, setResponseContent] = React.useState([]);
+
+    const parseTimeString = (timeString: String) => {
+        const [minutes, seconds] = timeString.split(":").map(Number);
+        return minutes * 60 + seconds;
+    }
+
+    const findContent = (timestamp: String, subject: String, type: String) => {
+        let content = "";
+        let contents = "PPT";
+        if (type === "PPT") {
+            contents = PPT_contents;
+        }
+        else if (type === "Video") {
+            contents = Video_chapters;
+        }
+        else if (type === "Transcript") {
+            contents = Transcript_contents;
+        }
+
+        if (!contents[subject]) {
+            content = "Subject not found.";
+            return content;
+        }
+
+        const timestampSeconds = parseInt(timestamp, 10);
+        for (const section of contents[subject]) {
+            const startSeconds = parseTimeString(section.start);
+            const endSeconds = parseTimeString(section.end);
+            if (timestampSeconds >= startSeconds && timestampSeconds <= endSeconds) {
+                content = section.content.join("\n");
+                return content;
+            }
+        }
+        content = "No content available for this timestamp.";
+        return content;
+    }
 
     // answer
     const responseItem: ChatItem = {
@@ -34,38 +73,129 @@ const ContextUI = forwardRef(({
         conversation_id: "",
     }
 
-    const prepare_context = (query, event) => {
-
-        let current_time = `当前视频时间戳：${getCurrentTime()}`
+    const prepare_context = (event) => {
+        let current_time = `${getCurrentTime()}`
         let current_chat = chatList.slice(-2).map(item => item.content)
         if (current_chat[current_chat.length - 1] === "" && chatList.slice(-1)[0].agent_thoughts.length > 0) {
             current_chat[current_chat.length - 1] = chatList.slice(-1)[0].agent_thoughts.slice(-1)[0].thought
         }
+        current_chat[current_chat.length - 2] = "Question:" + current_chat[current_chat.length - 2]
+        current_chat[current_chat.length - 1] = "Answer:" + current_chat[current_chat.length - 1]
+
+        let current_scene = " "
+        if (currInputs.scene === "自我介绍") {
+            current_scene = "self_introduction"
+        }
+        const PPT_content = findContent(current_time, current_scene, "PPT")
+        // console.log(PPT_content)
+        const Video_content = findContent(current_time, current_scene, "Video")
+        // console.log(Video_content)
+        const Transcript_content = findContent(current_time, current_scene, "Transcript")
+        // console.log(Transcript_content)
 
         data.inputs = {
-            "current_time": current_time,
-            "current_chat": current_chat.join('\n'),
-            "event": event
+            "scene": currInputs.scene,
         }
 
-        data.query = query
+        const query_ppt = `
+当前课程的PPT内容为：
+"""
+${PPT_content}
+"""
+        `
+        const query_video = `
+当前的视频章节内容为：
+"""
+${Video_content}
+"""
+        `
+        const query_transcript = `
+当前课程的语音内容为：
+"""
+${Transcript_content}
+"""
+        `
+        const query_QA = `
+当前对话的内容为：
+"""
+${current_chat.join('\n')}
+"""
+        `
+
+        if (event === "chat_new") {
+            data.query = `
+${query_QA}
+根据上面的上下文，帮助我预测接下来学员最有可能问的三个问题。
+注意：
+- 每个问题不超过10个字符
+- 输出如下格式的数组：
+    ["question1","question2","question3"]
+- 产生的问题必须用中文
+- 你需要帮助正在学习演讲的学员，从学员的角度思考接下来可能会提出的问题。
+`
+        }
+        else if (event === "video_pause") {
+            data.query = `
+${query_ppt}
+${query_transcript}
+${query_video}
+学员刚刚暂停了视频，请根据上面的的上下文，帮助我预测接下来学员最有可能问的问题，或者可能采取的动作。
+注意：
+- 每个问题不超过10个字符
+- 输出如下格式的数组：
+    ["question1","question2","question3"]
+- 产生的问题必须用中文
+- 你需要帮助正在学习演讲的学员，从学员的角度思考接下来可能会提出的问题。
+`
+        }
+        else if (event === "video_seek") {
+            data.query = `
+${query_ppt}
+${query_transcript}
+${query_video}
+学员刚刚拖动了视频，请根据上面的的上下文，帮助我预测接下来学员最有可能问的问题，或者可能采取的动作。
+注意：
+- 每个问题不超过10个字符
+- 输出如下格式的数组：
+    ["question1","question2","question3"]
+- 产生的问题必须用中文
+- 你需要帮助正在学习演讲的学员，从学员的角度思考接下来可能会提出的问题。
+`
+        }
+        else if (event === "video_next_chapter") {
+            data.query = `
+${query_ppt}
+${query_transcript}
+${query_video}
+视频进入了下一个章节，请根据上面的的上下文，帮助我预测接下来学员最有可能问的问题，或者可能采取的动作。
+注意：
+- 每个问题不超过10个字符
+- 输出如下格式的数组：
+    ["question1","question2","question3"]
+- 产生的问题必须用中文
+- 你需要帮助正在学习演讲的学员，从学员的角度思考接下来可能会提出的问题。
+`
+        }
+
         // console.log(data)
     }
 
-    const update_contextUI = (query, event) => {
-        prepare_context(query, event)
+    const update_contextUI = (event) => {
+        setResponseContent([])
+        prepare_context(event)
 
         updateContextUI(data, {
             onData: (message: string, isFirstMessage: boolean, { conversationId: newConversationId, messageId, taskId }: any) => {
                 responseItem.content = responseItem.content + message
                 // console.log("onData:", responseItem.content)
+                setResponseContent([])
             },
             async onCompleted(hasError?: boolean) {
                 if (hasError)
                     return
 
-                setResponseContent(responseItem.content)
                 // console.log("onCompleted:", responseItem.content)
+                setResponseContent(JSON.parse(responseItem.content))
             },
         })
     }
@@ -112,7 +242,15 @@ const ContextUI = forwardRef(({
                 }
             </div>
             <div className="flex justify-center space-x-3 mb-3">
-                <label>{responseContent}</label>
+                {/* <label>{responseContent}</label> */}
+                {
+                    !!responseContent?.length && (
+                        <TryToAsk
+                            suggestedQuestions={responseContent}
+                            onSend={onSend}
+                        />
+                    )
+                }
             </div>
         </div>
     );

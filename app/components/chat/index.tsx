@@ -45,6 +45,8 @@ export type IChatProps = {
   suggestedQuestions,
   isShowSuggestion,
   player,
+  updateContextUI,
+  currInputs,
 }
 
 const Chat: FC<IChatProps> = ({
@@ -68,6 +70,8 @@ const Chat: FC<IChatProps> = ({
   suggestedQuestions,
   isShowSuggestion,
   player,
+  updateContextUI,
+  currInputs,
 }) => {
   const { t } = useTranslation()
   const { notify } = Toast

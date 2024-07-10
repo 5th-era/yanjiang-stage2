@@ -27,6 +27,7 @@ import ContextUI from './contextui'
 import videojs from 'video.js'
 import 'video.js/dist/video-js.css';
 import { useImageFiles } from '@/app/components/base/image-uploader/hooks'
+import Video_chapters from '../../public/class/video_chapters.json'
 
 const Main: FC = () => {
   const { t } = useTranslation()
@@ -82,6 +83,46 @@ const Main: FC = () => {
     setNewConversationInfo,
     setExistConversationInfo,
   } = useConversation()
+
+  const [videoJsOptions, setVideoJsOptions] = React.useState({
+    autoplay: false,
+    controls: true,
+    responsive: true,
+    fluid: true,
+    // sources: [{
+    // src: 'https://speech-d5j-tech.oss-cn-beijing.aliyuncs.com/class/self_introduction.mp4',
+    // src: '/class/self_introduction.mp4',
+    // type: 'video/mp4'
+    // }],
+    // chapters: [
+    // { time: 0, label: '自我介绍的必要性' },
+    // { time: 68, label: '五字法' },
+    // { time: 475, label: '三个标签法' },
+    // { time: 836, label: '2N法' },
+    // { time: 952, label: '练习与总结' },
+    // ],
+  });
+
+  useEffect(() => {
+    const timeToSeconds = (time) => {
+      const [minutes, seconds] = time.split(':').map(Number);
+      return minutes * 60 + seconds;
+    };
+
+    if (currInputs && currInputs.scene === "自我介绍") {
+      videoJsOptions.sources = [
+        {
+          src: '/class/self_introduction.mp4',
+          type: 'video/mp4'
+        }
+      ]
+      videoJsOptions.chapters = Video_chapters['self_introduction'].map(chapter => ({
+        time: timeToSeconds(chapter.start),
+        label: chapter.content[0]
+      }));
+
+    }
+  }, [currInputs])
 
   const {
     files,
@@ -457,13 +498,13 @@ const Main: FC = () => {
         resetNewConversationInputs()
         setChatNotStarted()
         setCurrConversationId(tempNewConversationId, APP_ID, true)
-        if (!getHasStopResponded()) {
+        if (false && !getHasStopResponded()) {
           const { data }: any = await fetchSuggestedQuestions(responseItem.id)
           setSuggestQuestions(data)
           setIsShowSuggestion(true)
         }
         setResponsingFalse()
-        callUpdateContextUI("用户提了新的问题", "chat_new")
+        callUpdateContextUI("chat_new")
       },
       onFile(file) {
         const lastThought = responseItem.agent_thoughts?.[responseItem.agent_thoughts?.length - 1]
@@ -648,24 +689,6 @@ const Main: FC = () => {
 
   // const playerRef = React.useRef(null);
 
-  const videoJsOptions = {
-    autoplay: false,
-    controls: true,
-    responsive: true,
-    fluid: true,
-    sources: [{
-      // src: 'https://speech-d5j-tech.oss-cn-beijing.aliyuncs.com/class/self_introduction.mp4',
-      src: '/class/self_introduction.mp4',
-      type: 'video/mp4'
-    }],
-    chapters: [
-      { time: 0, label: '自我介绍的必要性' },
-      { time: 68, label: '五字法' },
-      { time: 475, label: '三个标签法' },
-      { time: 836, label: '2N法' },
-      { time: 952, label: '练习与总结' },
-    ],
-  };
 
   const handlePlayerReady = (player) => {
     setPlayer_instance(player);
@@ -678,9 +701,9 @@ const Main: FC = () => {
     });
   };
 
-  const callUpdateContextUI = (query, event) => {
+  const callUpdateContextUI = (event) => {
     if (contextUIRef.current) {
-      contextUIRef.current.update_contextUI(query, event);
+      contextUIRef.current.update_contextUI(event);
     }
   };
 
@@ -720,7 +743,7 @@ const Main: FC = () => {
           ></ConfigSence>
 
           {
-            hasSetInputs && (
+            hasSetInputs && currInputs && (
               <div className='relative grow max-w-full h-[200px] mb-2'>
                 <div className='h-full overflow-y-auto' ref={chatListDomRef}>
                   <div className='app-container interaction-mode'>
@@ -731,6 +754,7 @@ const Main: FC = () => {
                         onUpload={onUpload}
                         files={files}
                         updateContextUI={callUpdateContextUI}
+                        currInputs={currInputs}
                       />
                     </div>
 
@@ -744,6 +768,7 @@ const Main: FC = () => {
                         updateContextUI={updateContextUI}
                         player={player_instance}
                         chatList={chatList}
+                        currInputs={currInputs}
                       />
                     </div>
 
@@ -766,6 +791,7 @@ const Main: FC = () => {
                         isShowSuggestion={doShowSuggestion}
                         player={player_instance}
                         updateContextUI={callUpdateContextUI}
+                        currInputs={currInputs}
                       />
                     </div>
 

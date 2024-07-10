@@ -9,7 +9,9 @@ export const VideoPlayer = (props) => {
     const playerRef = React.useRef(null);
     const canvasRef = React.useRef(null);
     const imgRef = React.useRef(null);
-    const { options, onReady, onUpload, files, updateContextUI } = props;
+    const lastChapterRef = React.useRef(null);
+
+    const { options, onReady, onUpload, files, updateContextUI, currInputs } = props;
     const [videoDuration, setVideoDuration] = React.useState(0);
     const [currentTime, setCurrentTime] = React.useState(0);
     const [hoveredChapter, setHoveredChapter] = React.useState(null);
@@ -34,7 +36,27 @@ export const VideoPlayer = (props) => {
             });
 
             player.on('timeupdate', () => {
-                setCurrentTime(player.currentTime());
+                const currentTime = player.currentTime();
+                setCurrentTime(currentTime);
+
+                // Check if the current time is within the next chapter
+                if (options.chapters) {
+                    // console.log(options.chapters);
+                    for (let i = 0; i < options.chapters.length; i++) {
+                        const chapter = options.chapters[i];
+                        const nextChapter = options.chapters[i + 1];
+                        const chapterEnd = nextChapter ? nextChapter.time : videoDuration;
+
+                        if (currentTime >= chapter.time && currentTime < chapterEnd) {
+                            if (lastChapterRef.current !== i) {
+                                // console.log("Enter next chapter:", chapter.label);
+                                updateContextUI("video_next_chapter");
+                                lastChapterRef.current = i;
+                            }
+                            break;
+                        }
+                    }
+                }
             });
 
             // 监听暂停事件
@@ -43,7 +65,7 @@ export const VideoPlayer = (props) => {
                     clearTimeout(timeoutRef.current);
                 }
                 timeoutRef.current = setTimeout(() => {
-                    updateContextUI("用户暂停了视频", "video_pause");
+                    updateContextUI("video_pause");
                     timeoutRef.current = null; // 清除 timeoutRef 的值
                 }, 500);
             });
@@ -53,7 +75,7 @@ export const VideoPlayer = (props) => {
                     clearTimeout(timeoutRef.current);
                 }
                 timeoutRef.current = setTimeout(() => {
-                    updateContextUI("用户拖动了视频", "video_seek");
+                    updateContextUI("video_seek");
                     timeoutRef.current = null; // 清除 timeoutRef 的值
                 }, 500);
             });
@@ -61,9 +83,6 @@ export const VideoPlayer = (props) => {
             // on prop change, for example:
         } else {
             const player = playerRef.current;
-
-            // player.autoplay(options.autoplay);
-            // player.src(options.sources);
         }
     }, [options, onReady]);
 
@@ -202,45 +221,50 @@ export const VideoPlayer = (props) => {
             <div data-vjs-player>
                 <div ref={videoRef} />
             </div>
-            <div className="chapters">
-                {options.chapters.map((chapter, index) => {
-                    const nextChapter = options.chapters[index + 1];
-                    const chapterEnd = nextChapter ? nextChapter.time : videoDuration;
-                    const chapterDuration = chapterEnd - chapter.time;
-                    const widthPercent = (chapterDuration / videoDuration) * 100;
-                    const isHovered = hoveredChapter === index;
-                    const marginRight = index < options.chapters.length - 1 ? 1 : 0; // 最后一个章节没有右侧边距
+            {('chapters' in options &&
+                <div>
+                    <div className="chapters">
+                        {options.chapters.map((chapter, index) => {
+                            const nextChapter = options.chapters[index + 1];
+                            const chapterEnd = nextChapter ? nextChapter.time : videoDuration;
+                            const chapterDuration = chapterEnd - chapter.time;
+                            const widthPercent = (chapterDuration / videoDuration) * 100;
+                            const isHovered = hoveredChapter === index;
+                            const marginRight = index < options.chapters.length - 1 ? 1 : 0; // 最后一个章节没有右侧边距
 
-                    return (
-                        <div
-                            key={index}
-                            onClick={() => jumpTo(chapter.time)}
-                            style={{
-                                flex: `0 0 calc(${widthPercent}% - ${1 / options.chapters.length}%)`, // 调整宽度以留出1px的空白
-                                cursor: 'pointer',
-                                transition: 'background-color 0.3s, color 0.3s',
-                                background: isHovered ? '#777' : getChapterBackground(chapter.time, chapterEnd),
-                                color: '#fff',
-                                textAlign: 'center',
-                                padding: '10px 0', // 仅顶部和底部填充
-                                overflow: 'hidden',
-                                whiteSpace: 'nowrap',
-                                textOverflow: 'ellipsis',
-                                position: 'relative',
-                                marginRight: `${marginRight}px`, // 添加1px的空白，除了最后一个章节
-                            }}
-                            title={chapter.label} // 使用title属性在悬停时显示完整文本
-                            onMouseEnter={() => setHoveredChapter(index)}
-                            onMouseLeave={() => setHoveredChapter(null)}
-                        >
-                            {chapter.label}
-                        </div>
-                    );
-                })}
-            </div>
+                            return (
+                                <div
+                                    key={index}
+                                    onClick={() => jumpTo(chapter.time)}
+                                    style={{
+                                        flex: `0 0 calc(${widthPercent}% - ${1 / options.chapters.length}%)`, // 调整宽度以留出1px的空白
+                                        cursor: 'pointer',
+                                        transition: 'background-color 0.3s, color 0.3s',
+                                        background: isHovered ? '#777' : getChapterBackground(chapter.time, chapterEnd),
+                                        color: '#fff',
+                                        textAlign: 'center',
+                                        padding: '10px 0', // 仅顶部和底部填充
+                                        overflow: 'hidden',
+                                        whiteSpace: 'nowrap',
+                                        textOverflow: 'ellipsis',
+                                        position: 'relative',
+                                        marginRight: `${marginRight}px`, // 添加1px的空白，除了最后一个章节
+                                    }}
+                                    title={chapter.label} // 使用title属性在悬停时显示完整文本
+                                    onMouseEnter={() => setHoveredChapter(index)}
+                                    onMouseLeave={() => setHoveredChapter(null)}
+                                >
+                                    {chapter.label}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
             <button id="screenshotButton" style={{ display: 'none' }} onClick={handleScreenshot}>Take Screenshot</button>
             <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
             <img ref={imgRef} alt="Screenshot" style={{ display: 'none' }} />
+
         </div>
     );
 }
