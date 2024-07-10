@@ -22,6 +22,7 @@ const translation = {
     privacyPolicyRight: '。',
     screenShot: '获取当前课件的截图',
     tryToAsk: '试着问问',
+    oftenQuestion: '常见问题',
   },
   errorMessage: {
     valueOfVarRequired: '变量值必填',

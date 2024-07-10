@@ -6,48 +6,87 @@ import { useTranslation } from 'react-i18next'
 import Button from '@/app/components/base/button'
 
 type TryToAskProps = {
-    suggestedQuestions: string[]
+    suggestedQuestions: string[],
     onSend: () => {},
+    questions_often: string[],
 }
 const TryToAsk: FC<TryToAskProps> = ({
     suggestedQuestions,
     onSend,
+    questions_often,
 }) => {
     const { t } = useTranslation()
 
     return (
         <div>
-            <div className='flex items-center mt-2.5 mb-2.5 py-2'>
-                <div
-                    className='grow h-[1px]'
-                    style={{
-                        background: 'linear-gradient(270deg, #F3F4F6 0%, rgba(243, 244, 246, 0) 100%)',
-                    }}
-                />
-                <div className='shrink-0 flex items-center px-3 text-gray-500'>
-                    {/* <Star04 className='mr-1 w-2.5 h-2.5' /> */}
-                    <span className='text-xs text-gray-500 font-medium'>{t('app.chat.tryToAsk')}</span>
+            {!!questions_often?.length && (
+                <div>
+                    <div className='flex items-center mt-2.5 mb-2.5 py-2'>
+                        <div
+                            className='grow h-[1px]'
+                            style={{
+                                background: 'linear-gradient(270deg, #F3F4F6 0%, rgba(243, 244, 246, 0) 100%)',
+                            }}
+                        />
+                        <div className='shrink-0 flex items-center px-3 text-gray-500'>
+                            <span className='text-xs text-gray-500 font-medium'>{t('app.chat.oftenQuestion')}</span>
+                        </div>
+                        <div
+                            className='grow h-[1px]'
+                            style={{
+                                background: 'linear-gradient(270deg, rgba(243, 244, 246, 0) 0%, #F3F4F6 100%)',
+                            }}
+                        />
+                    </div>
+                    <div className='flex flex-wrap justify-center'>
+                        {
+                            questions_often.map((question_often, index) => (
+                                <Button
+                                    key={index}
+                                    className='mb-2 mr-2 last:mr-0 px-3 py-[5px] bg-white text-primary-600 text-xs font-medium '
+                                    onClick={() => onSend(question_often)}
+                                >
+                                    {question_often}
+                                </Button>
+                            ))
+                        }
+                    </div>
                 </div>
-                <div
-                    className='grow h-[1px]'
-                    style={{
-                        background: 'linear-gradient(270deg, rgba(243, 244, 246, 0) 0%, #F3F4F6 100%)',
-                    }}
-                />
-            </div>
-            <div className='flex flex-wrap justify-center'>
-                {
-                    suggestedQuestions.map((suggestQuestion, index) => (
-                        <Button
-                            key={index}
-                            className='mb-2 mr-2 last:mr-0 px-3 py-[5px] bg-white text-primary-600 text-xs font-medium '
-                            onClick={() => onSend(suggestQuestion)}
-                        >
-                            {suggestQuestion}
-                        </Button>
-                    ))
-                }
-            </div>
+            )}
+            {!!suggestedQuestions?.length && (
+                <div>
+                    {/* <div className='flex items-center mt-2.5 mb-2.5 py-2'>
+                        <div
+                            className='grow h-[1px]'
+                            style={{
+                                background: 'linear-gradient(270deg, #F3F4F6 0%, rgba(243, 244, 246, 0) 100%)',
+                            }}
+                        />
+                        <div className='shrink-0 flex items-center px-3 text-gray-500'>
+                            <span className='text-xs text-gray-500 font-medium'>{t('app.chat.tryToAsk')}</span>
+                        </div>
+                        <div
+                            className='grow h-[1px]'
+                            style={{
+                                background: 'linear-gradient(270deg, rgba(243, 244, 246, 0) 0%, #F3F4F6 100%)',
+                            }}
+                        />
+                    </div> */}
+                    <div className='flex flex-wrap justify-center'>
+                        {
+                            suggestedQuestions.map((suggestQuestion, index) => (
+                                <Button
+                                    key={index}
+                                    className='mb-2 mr-2 last:mr-0 px-3 py-[5px] bg-white text-primary-600 text-xs font-medium '
+                                    onClick={() => onSend(suggestQuestion)}
+                                >
+                                    {suggestQuestion}
+                                </Button>
+                            ))
+                        }
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

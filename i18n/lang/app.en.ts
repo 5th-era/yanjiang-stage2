@@ -26,7 +26,7 @@ const translation = {
       ' provided by the app developer.',
     screenShot:
       'screenShot',
-    tryToAsk: 'Try to ask',
+    oftenQuestion: 'oftenQuestion',
   },
   errorMessage: {
     valueOfVarRequired: 'Variables value can not be empty',

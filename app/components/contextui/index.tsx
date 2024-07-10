@@ -20,6 +20,7 @@ const ContextUI = forwardRef(({
     currInputs,
 }, ref) => {
     const [responseContent, setResponseContent] = React.useState([]);
+    const [questions_often, setQuestions_often] = React.useState(["告诉我当前场景下的演讲技巧", "给我一份当前场景下的优秀演讲示范", "这节课的主要内容是什么"]);
 
     const parseTimeString = (timeString: String) => {
         const [minutes, seconds] = timeString.split(":").map(Number);
@@ -231,7 +232,7 @@ ${query_video}
                     {t('app.chat.screenShot')}
                 </Button> */}
             </div>
-            <div className='flex justify-center space-x-3 mb-3 '>
+            {/* <div className='flex justify-center space-x-3 mb-3 '>
                 {
                     isShowSuggestion && !!suggestedQuestions?.length && (
                         <TryToAsk
@@ -240,14 +241,15 @@ ${query_video}
                         />
                     )
                 }
-            </div>
+            </div> */}
             <div className="flex justify-center space-x-3 mb-3">
                 {/* <label>{responseContent}</label> */}
                 {
-                    !!responseContent?.length && (
+                    (!!responseContent?.length || !!questions_often?.length) && (
                         <TryToAsk
                             suggestedQuestions={responseContent}
                             onSend={onSend}
+                            questions_often={questions_often}
                         />
                     )
                 }
