@@ -78,6 +78,82 @@ export const updateContextUI = async (
   }, { onData, onCompleted, onThought, onFile, onError, getAbortController, onMessageEnd, onMessageReplace, onNodeStarted, onWorkflowStarted, onWorkflowFinished, onNodeFinished })
 }
 
+export const sendSpeechEvaluationMsg = async (
+  body: Record<string, any>,
+  {
+    onData,
+    onCompleted,
+    onThought,
+    onFile,
+    onError,
+    getAbortController,
+    onMessageEnd,
+    onMessageReplace,
+    onWorkflowStarted,
+    onNodeStarted,
+    onNodeFinished,
+    onWorkflowFinished,
+  }: {
+    onData: IOnData
+    onCompleted: IOnCompleted
+    onFile: IOnFile
+    onThought: IOnThought
+    onMessageEnd: IOnMessageEnd
+    onMessageReplace: IOnMessageReplace
+    onError: IOnError
+    getAbortController?: (abortController: AbortController) => void
+    onWorkflowStarted: IOnWorkflowStarted
+    onNodeStarted: IOnNodeStarted
+    onNodeFinished: IOnNodeFinished
+    onWorkflowFinished: IOnWorkflowFinished
+  },
+) => {
+  return ssePost('speechEvaluation', {
+    body: {
+      ...body,
+      response_mode: 'streaming',
+    },
+  }, { onData, onCompleted, onThought, onFile, onError, getAbortController, onMessageEnd, onMessageReplace, onNodeStarted, onWorkflowStarted, onWorkflowFinished, onNodeFinished })
+}
+
+export const sendInteractWithTeacherMsg = async (
+  body: Record<string, any>,
+  {
+    onData,
+    onCompleted,
+    onThought,
+    onFile,
+    onError,
+    getAbortController,
+    onMessageEnd,
+    onMessageReplace,
+    onWorkflowStarted,
+    onNodeStarted,
+    onNodeFinished,
+    onWorkflowFinished,
+  }: {
+    onData: IOnData
+    onCompleted: IOnCompleted
+    onFile: IOnFile
+    onThought: IOnThought
+    onMessageEnd: IOnMessageEnd
+    onMessageReplace: IOnMessageReplace
+    onError: IOnError
+    getAbortController?: (abortController: AbortController) => void
+    onWorkflowStarted: IOnWorkflowStarted
+    onNodeStarted: IOnNodeStarted
+    onNodeFinished: IOnNodeFinished
+    onWorkflowFinished: IOnWorkflowFinished
+  },
+) => {
+  return ssePost('aboutMuyu', {
+    body: {
+      ...body,
+      response_mode: 'streaming',
+    },
+  }, { onData, onCompleted, onThought, onFile, onError, getAbortController, onMessageEnd, onMessageReplace, onNodeStarted, onWorkflowStarted, onWorkflowFinished, onNodeFinished })
+}
+
 export const fetchConversations = async () => {
   return get('conversations', { params: { limit: 100, first_id: '' } })
 }
@@ -89,6 +165,14 @@ export const fetchChatList = async (conversationId: string) => {
 // init value. wait for server update
 export const fetchAppParams = async () => {
   return get('parameters')
+}
+
+export const fetchAppParams_speechEvaluation = async () => {
+  return get('parameters_speechEvaluation')
+}
+
+export const fetchAppParams_aboutMuyu = async () => {
+  return get('parameters_aboutMuyu')
 }
 
 export const updateFeedback = async ({ url, body }: { url: string; body: Feedbacktype }) => {

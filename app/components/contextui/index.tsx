@@ -18,9 +18,17 @@ const ContextUI = forwardRef(({
     player,
     chatList,
     currInputs,
+    activeModule,
+    setActiveModule,
+    questions_often,
 }, ref) => {
     const [responseContent, setResponseContent] = React.useState([]);
-    const [questions_often, setQuestions_often] = React.useState(["告诉我当前场景下的演讲技巧", "给我一份当前场景下的优秀演讲示范", "这节课的主要内容是什么"]);
+
+    const handleButtonClick = (module: String) => {
+        if (activeModule !== module) {
+            setActiveModule(module);
+        }
+    };
 
     const parseTimeString = (timeString: String) => {
         const [minutes, seconds] = timeString.split(":").map(Number);
@@ -182,6 +190,9 @@ ${query_video}
     }
 
     const update_contextUI = (event) => {
+        if (activeModule != 'InteractiveLearning') {
+            return
+        }
         setResponseContent([])
         prepare_context(event)
 
@@ -213,11 +224,46 @@ ${query_video}
 
     return (
         <div className="context-container flex flex-col justify-center">
-            <div className='flex justify-center space-x-3 mt-1 '>
+            <div className='flex items-center mt-0 mb-0 py-2'>
+                <div
+                    className='grow h-[1px]'
+                    style={{
+                        background: 'linear-gradient(270deg, #F3F4F6 0%, rgba(243, 244, 246, 0) 100%)',
+                    }}
+                />
+                <div className='shrink-0 flex items-center px-3'>
+                    <span className='text-xs text-gray-500 font-medium'>{t('app.chat.functionArea')}</span>
+                </div>
+                <div
+                    className='grow h-[1px]'
+                    style={{
+                        background: 'linear-gradient(270deg, rgba(243, 244, 246, 0) 0%, #F3F4F6 100%)',
+                    }}
+                />
+            </div>
+            <div className='flex justify-center space-x-3 mt-0'>
                 <Button
                     onClick={() => startNewConversation()}
-                    className="group block !h-9 bg-white-200 items-right text-sm mt-auto font-bold border border-black-500">
+                    className="group block !h-9 bg-white-200 items-right text-sm mt-auto border border-black-500 text-primary-600">
                     {t('app.chat.reselectCourses')}
+                </Button>
+                <Button
+                    onClick={() => handleButtonClick('InteractiveLearning')}
+                    disabled={activeModule === 'InteractiveLearning'}
+                    className={`group block !h-9 bg-white-200 items-right text-sm mt-auto border border-black-500 text-primary-600 ${activeModule === 'InteractiveLearning' ? 'bg-blue-100' : ''}`}>
+                    {t('app.chat.InteractiveLearning')}
+                </Button>
+                <Button
+                    onClick={() => handleButtonClick('SpeechReviewOptimization')}
+                    disabled={activeModule === 'SpeechReviewOptimization'}
+                    className={`group block !h-9 bg-white-200 items-right text-sm mt-auto border border-black-500 text-primary-600 ${activeModule === 'SpeechReviewOptimization' ? 'bg-blue-100' : ''}`}>
+                    {t('app.chat.SpeechReviewOptimization')}
+                </Button>
+                <Button
+                    onClick={() => handleButtonClick('InteractWithTeacher')}
+                    disabled={activeModule === 'InteractWithTeacher'}
+                    className={`group block !h-9 bg-white-200 items-right text-sm mt-auto border border-black-500 text-primary-600 ${activeModule === 'InteractWithTeacher' ? 'bg-blue-100' : ''}`}>
+                    {t('app.chat.InteractWithTeacher')}
                 </Button>
                 {/* <Button
                     onClick={() => update_contextUI("你好啊boy", "test")}
@@ -245,11 +291,11 @@ ${query_video}
             <div className="flex justify-center space-x-3 mb-3">
                 {/* <label>{responseContent}</label> */}
                 {
-                    (!!responseContent?.length || !!questions_often?.length) && (
+                    (!!responseContent?.length || !!questions_often[activeModule]?.length) && (
                         <TryToAsk
-                            suggestedQuestions={responseContent}
+                            suggestedQuestions={activeModule === "InteractiveLearning" ? responseContent : []}
                             onSend={onSend}
-                            questions_often={questions_often}
+                            questions_often={questions_often[activeModule]}
                         />
                     )
                 }

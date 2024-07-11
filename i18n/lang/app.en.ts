@@ -7,6 +7,9 @@ const translation = {
   chat: {
     newChat: 'New chat',
     reselectCourses: 'Reselect Courses',
+    InteractiveLearning: 'Interactive Learning',
+    SpeechReviewOptimization: 'Speech Review and Optimization',
+    InteractWithTeacher: 'Interact With Teacher',
     newChatDefaultName: 'New conversation',
     openingStatementTitle: 'Opening statement',
     powerBy: 'Powered by',
@@ -27,6 +30,8 @@ const translation = {
     screenShot:
       'screenShot',
     oftenQuestion: 'oftenQuestion',
+    questionArea: 'question Area',
+    functionArea: 'function Area',
   },
   errorMessage: {
     valueOfVarRequired: 'Variables value can not be empty',

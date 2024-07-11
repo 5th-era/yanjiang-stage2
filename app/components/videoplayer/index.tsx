@@ -49,8 +49,14 @@ export const VideoPlayer = (props) => {
 
                         if (currentTime >= chapter.time && currentTime < chapterEnd) {
                             if (lastChapterRef.current !== i) {
-                                // console.log("Enter next chapter:", chapter.label);
-                                updateContextUI("video_next_chapter");
+                                if (timeoutRef.current) {
+                                    clearTimeout(timeoutRef.current);
+                                }
+                                timeoutRef.current = setTimeout(() => {
+                                    updateContextUI("video_next_chapter");
+                                    timeoutRef.current = null; // 清除 timeoutRef 的值
+                                }, 300);
+                                // console.log("Enter next chapter:", chapter.label);                                
                                 lastChapterRef.current = i;
                             }
                             break;
@@ -67,7 +73,7 @@ export const VideoPlayer = (props) => {
                 timeoutRef.current = setTimeout(() => {
                     updateContextUI("video_pause");
                     timeoutRef.current = null; // 清除 timeoutRef 的值
-                }, 500);
+                }, 300);
             });
 
             player.on('seeked', () => {
@@ -77,7 +83,7 @@ export const VideoPlayer = (props) => {
                 timeoutRef.current = setTimeout(() => {
                     updateContextUI("video_seek");
                     timeoutRef.current = null; // 清除 timeoutRef 的值
-                }, 500);
+                }, 300);
             });
             // You could update an existing player in the `else` block here
             // on prop change, for example:

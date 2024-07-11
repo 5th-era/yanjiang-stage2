@@ -128,9 +128,8 @@ const Chat: FC<IChatProps> = ({
   const handleSend = () => {
     if (!valid() || (checkCanSend && !checkCanSend()))
       return
-    const query1 = `当前视频时间戳：${getCurrentTime()} \n ${query}`
-    // console.log(query1)
-    onSend(query1, files.filter(file => file.progress !== -1).map(fileItem => ({
+
+    onSend(query, files.filter(file => file.progress !== -1).map(fileItem => ({
       type: 'image',
       transfer_method: fileItem.type,
       url: fileItem.url,

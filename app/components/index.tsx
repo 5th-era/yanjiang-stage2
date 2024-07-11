@@ -10,7 +10,7 @@ import Toast from '@/app/components/base/toast'
 import Sidebar from '@/app/components/sidebar'
 import ConfigSence from '@/app/components/config-scence'
 import Header from '@/app/components/header'
-import { fetchAppParams, fetchChatList, fetchConversations, fetchSuggestedQuestions, generationConversationName, sendChatMessage, updateFeedback, updateContextUI } from '@/service'
+import { fetchAppParams, fetchChatList, fetchConversations, fetchSuggestedQuestions, generationConversationName, sendChatMessage, updateFeedback, updateContextUI, sendSpeechEvaluationMsg, sendInteractWithTeacherMsg, fetchAppParams_speechEvaluation, fetchAppParams_aboutMuyu } from '@/service'
 import type { ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
 import Chat from '@/app/components/chat'
@@ -35,6 +35,13 @@ const Main: FC = () => {
   const isMobile = media === MediaType.mobile
   const hasSetAppConfig = APP_ID && API_KEY
 
+  const [questions_often, setQuestions_often] = React.useState(
+    {
+      "InteractiveLearning": ["告诉我当前场景下的演讲技巧", "给我一份当前场景下的优秀演讲示范", "这节课的主要内容是什么"],
+      "SpeechReviewOptimization": ["帮我点评这篇演讲稿", "帮我优化这篇演讲稿"],
+      "InteractWithTeacher": ["你的大致经历是怎样的？", "你是不是参过军？", "你出版过哪些书？"],
+    }
+  );
   /*
   * app info
   */
@@ -51,6 +58,7 @@ const Main: FC = () => {
     transfer_methods: [TransferMethod.local_file],
   })
 
+  const [activeModule, setActiveModule] = React.useState("InteractiveLearning");
   useEffect(() => {
     if (APP_INFO?.title)
       document.title = `${APP_INFO.title}`
@@ -89,18 +97,6 @@ const Main: FC = () => {
     controls: true,
     responsive: true,
     fluid: true,
-    // sources: [{
-    // src: 'https://speech-d5j-tech.oss-cn-beijing.aliyuncs.com/class/self_introduction.mp4',
-    // src: '/class/self_introduction.mp4',
-    // type: 'video/mp4'
-    // }],
-    // chapters: [
-    // { time: 0, label: '自我介绍的必要性' },
-    // { time: 68, label: '五字法' },
-    // { time: 475, label: '三个标签法' },
-    // { time: 836, label: '2N法' },
-    // { time: 952, label: '练习与总结' },
-    // ],
   });
 
   useEffect(() => {
@@ -206,8 +202,9 @@ const Main: FC = () => {
       })
     }
 
-    if (isNewConversation && isChatStarted)
+    if (isNewConversation && isChatStarted) {
       setChatList(generateNewChatListWithOpenstatement())
+    }
   }
   useEffect(handleConversationSwitch, [currConversationId, inited])
 
@@ -230,6 +227,8 @@ const Main: FC = () => {
   * chat info. chat is under conversation.
   */
   const [chatList, setChatList, getChatList] = useGetState<ChatItem[]>([])
+  const [chatList_speechReview, setChatList_speechReview, getChatList_speechReview] = useGetState<ChatItem[]>([])
+  const [chatList_interactWithTeacher, setChatList_interactWithTeacher, getChatList_interactWithTeacher] = useGetState<ChatItem[]>([])
   const chatListDomRef = useRef<HTMLDivElement>(null)
   // const playerRef = useRef(null)
   useEffect(() => {
@@ -241,9 +240,9 @@ const Main: FC = () => {
   const canEditInpus = !chatList.some(item => item.isAnswer === false) && isNewConversation
   const createNewChat = () => {
     // if new chat is already exist, do not create new chat
-    if (conversationList.some(item => item.id === '-1'))
+    if (conversationList.some(item => item.id === '-1')) {
       return
-
+    }
     setConversationList(produce(conversationList, (draft) => {
       draft.unshift({
         id: '-1',
@@ -282,7 +281,7 @@ const Main: FC = () => {
     }
     (async () => {
       try {
-        const [conversationData, appParams] = await Promise.all([fetchConversations(), fetchAppParams()])
+        const [conversationData, appParams, appParams_speechEvaluation, appParams_aboutMuyu] = await Promise.all([fetchConversations(), fetchAppParams(), fetchAppParams_speechEvaluation(), fetchAppParams_aboutMuyu()])
 
         // handle current conversation id
         const { data: conversations } = conversationData as { data: ConversationItem[] }
@@ -291,7 +290,16 @@ const Main: FC = () => {
 
         // fetch new conversation info
         const { user_input_form, opening_statement: introduction, file_upload, system_parameters, suggested_questions }: any = appParams
-        // console.log("suggested_questions: ", suggested_questions)
+        const { opening_statement: introduction_speechEavluation, suggested_questions: suggested_questions_speechEavluation }: any = appParams_speechEvaluation
+        const { opening_statement: introduction_aboutMuyu, suggested_questions: suggested_questions_aboutMuyu }: any = appParams_aboutMuyu
+
+        setQuestions_often(
+          {
+            "InteractiveLearning": suggested_questions,
+            "SpeechReviewOptimization": suggested_questions_speechEavluation,
+            "InteractWithTeacher": suggested_questions_aboutMuyu,
+          }
+        )
         setSuggestQuestions_open(suggested_questions)
         setSuggestQuestions(suggested_questions)
 
@@ -314,6 +322,8 @@ const Main: FC = () => {
         if (isNotNewConversation)
           setCurrConversationId(_conversationId, APP_ID, false)
 
+        setChatList_speechReview(generateNewChatListWithOpenstatement(introduction_speechEavluation, null))
+        setChatList_interactWithTeacher(generateNewChatListWithOpenstatement(introduction_aboutMuyu, null))
         setInited(true)
       }
       catch (e: any) {
@@ -387,11 +397,50 @@ const Main: FC = () => {
     setChatList(newListWithAnswer)
   }
 
+  const updateCurrentQA_withChatList = ({
+    responseItem,
+    questionId,
+    placeholderAnswerId,
+    questionItem,
+    _getChatList,
+    _setChatList,
+  }: {
+    responseItem: ChatItem
+    questionId: string
+    placeholderAnswerId: string
+    questionItem: ChatItem
+  }) => {
+    // closesure new list is outdated.
+    const newListWithAnswer = produce(
+      _getChatList().filter(item => item.id !== responseItem.id && item.id !== placeholderAnswerId),
+      (draft) => {
+        if (!draft.find(item => item.id === questionId))
+          draft.push({ ...questionItem })
+
+        draft.push({ ...responseItem })
+      })
+    _setChatList(newListWithAnswer)
+  }
+
+  const handleSendincontextUI = (message: string, files?: VisionFile[]) => {
+    if (activeModule === "InteractiveLearning") {
+      handleSend(message, files)
+    }
+    else if (activeModule === "SpeechReviewOptimization") {
+      handleSendsimple(message, files)
+    }
+    else if (activeModule === "InteractWithTeacher") {
+      handleSendsimple(message, files)
+    }
+  }
+
   const handleSend = async (message: string, files?: VisionFile[]) => {
     if (isResponsing) {
       notify({ type: 'info', message: t('app.errorMessage.waitForResponse') })
       return
     }
+    message = `当前视频时间戳：${player_instance.currentTime().toFixed(2)} \n ${message}`
+
     const data: Record<string, any> = {
       inputs: currInputs,
       query: message,
@@ -707,6 +756,218 @@ const Main: FC = () => {
     }
   };
 
+
+  const handleSendsimple = async (message: string, files?: VisionFile[]) => {
+    if (isResponsing) {
+      notify({ type: 'info', message: t('app.errorMessage.waitForResponse') })
+      return
+    }
+    const data: Record<string, any> = {
+      inputs: currInputs,
+      query: message,
+      // conversation_id: isNewConversation ? null : currConversationId,
+      conversation_id: null,
+    }
+
+    if (visionConfig?.enabled && files && files?.length > 0) {
+      data.files = files.map((item) => {
+        if (item.transfer_method === TransferMethod.local_file) {
+          return {
+            ...item,
+            url: '',
+          }
+        }
+        return item
+      })
+    }
+
+    // qustion
+    const questionId = `question-${Date.now()}`
+    const questionItem = {
+      id: questionId,
+      content: message,
+      isAnswer: false,
+      message_files: files,
+    }
+
+    const placeholderAnswerId = `answer-placeholder-${Date.now()}`
+    const placeholderAnswerItem = {
+      id: placeholderAnswerId,
+      content: '',
+      isAnswer: true,
+    }
+
+    let _sendMsg = sendSpeechEvaluationMsg
+    let _getChatList = getChatList_speechReview
+    let _setChatList = setChatList_speechReview
+    if (activeModule === "SpeechReviewOptimization") {
+      _getChatList = getChatList_speechReview
+      _setChatList = setChatList_speechReview
+      _sendMsg = sendSpeechEvaluationMsg
+    }
+    else if (activeModule === "InteractWithTeacher") {
+      _getChatList = getChatList_interactWithTeacher
+      _setChatList = setChatList_interactWithTeacher
+      _sendMsg = sendInteractWithTeacherMsg
+    }
+
+    const newList = [..._getChatList(), questionItem, placeholderAnswerItem]
+    _setChatList(newList)
+
+    let isAgentMode = false
+
+    // answer
+    const responseItem: ChatItem = {
+      id: `${Date.now()}`,
+      content: '',
+      agent_thoughts: [],
+      message_files: [],
+      isAnswer: true,
+    }
+    let hasSetResponseId = false
+
+    // const prevTempNewConversationId = getCurrConversationId() || '-1'
+    const prevTempNewConversationId = '-1'
+    let tempNewConversationId = ''
+
+    setHasStopResponded(false)
+    setResponsingTrue()
+    setIsShowSuggestion(false)
+
+    _sendMsg(data, {
+      getAbortController: (abortController) => {
+        setAbortController(abortController)
+      },
+      onData: (message: string, isFirstMessage: boolean, { conversationId: newConversationId, messageId, taskId }: any) => {
+        if (!isAgentMode) {
+          responseItem.content = responseItem.content + message
+        }
+        else {
+          const lastThought = responseItem.agent_thoughts?.[responseItem.agent_thoughts?.length - 1]
+          if (lastThought)
+            lastThought.thought = lastThought.thought + message // need immer setAutoFreeze
+        }
+        if (messageId && !hasSetResponseId) {
+          responseItem.id = messageId
+          hasSetResponseId = true
+        }
+
+        if (isFirstMessage && newConversationId)
+          tempNewConversationId = newConversationId
+
+        // setMessageTaskId(taskId)
+        // // has switched to other conversation
+        // if (prevTempNewConversationId !== getCurrConversationId()) {
+        //   setIsResponsingConCurrCon(false)
+        //   return
+        // }
+        updateCurrentQA_withChatList({
+          responseItem,
+          questionId,
+          placeholderAnswerId,
+          questionItem,
+          _getChatList,
+          _setChatList,
+        })
+
+      },
+      async onCompleted(hasError?: boolean) {
+        if (hasError)
+          return
+
+        // if (getConversationIdChangeBecauseOfNew()) {
+        //   const { data: allConversations }: any = await fetchConversations()
+        //   const newItem: any = await generationConversationName(allConversations[0].id)
+
+        //   const newAllConversations = produce(allConversations, (draft: any) => {
+        //     draft[0].name = newItem.name
+        //   })
+        //   setConversationList(newAllConversations as any)
+        // }
+        // setConversationIdChangeBecauseOfNew(false)
+        // resetNewConversationInputs()
+        // setChatNotStarted()
+        // setCurrConversationId(tempNewConversationId, APP_ID, true)
+        // if (false && !getHasStopResponded()) {
+        //   const { data }: any = await fetchSuggestedQuestions(responseItem.id)
+        //   setSuggestQuestions(data)
+        //   setIsShowSuggestion(true)
+        // }
+        setResponsingFalse()
+        // callUpdateContextUI("chat_new")
+      },
+      onFile(file) {
+        console.log("unsupported now.")
+      },
+      onThought(thought) {
+        console.log("unsupported now.")
+      },
+      onMessageEnd: (messageEnd) => {
+        if (messageEnd.metadata?.annotation_reply) {
+          responseItem.id = messageEnd.id
+          responseItem.annotation = ({
+            id: messageEnd.metadata.annotation_reply.id,
+            authorName: messageEnd.metadata.annotation_reply.account.name,
+          } as AnnotationType)
+          const newListWithAnswer = produce(
+            _getChatList().filter(item => item.id !== responseItem.id && item.id !== placeholderAnswerId),
+            (draft) => {
+              if (!draft.find(item => item.id === questionId))
+                draft.push({ ...questionItem })
+
+              draft.push({
+                ...responseItem,
+              })
+            })
+          _setChatList(newListWithAnswer)
+          return
+        }
+        // not support show citation
+        // responseItem.citation = messageEnd.retriever_resources
+        const newListWithAnswer = produce(
+          _getChatList().filter(item => item.id !== responseItem.id && item.id !== placeholderAnswerId),
+          (draft) => {
+            if (!draft.find(item => item.id === questionId))
+              draft.push({ ...questionItem })
+
+            draft.push({ ...responseItem })
+          })
+        _setChatList(newListWithAnswer)
+      },
+      onMessageReplace: (messageReplace) => {
+        console.log("unsupported now.")
+      },
+      onError() {
+        setResponsingFalse()
+        // role back placeholder answer
+        _setChatList(produce(getChatList(), (draft) => {
+          draft.splice(draft.findIndex(item => item.id === placeholderAnswerId), 1)
+        }))
+      },
+      onWorkflowStarted: ({ workflow_run_id, task_id }) => {
+        console.log("unsupported now.")
+      },
+      onWorkflowFinished: ({ data }) => {
+        console.log("unsupported now.")
+      },
+      onNodeStarted: ({ data }) => {
+        console.log("unsupported now.")
+      },
+      onNodeFinished: ({ data }) => {
+        console.log("unsupported now.")
+      },
+    })
+  }
+
+  const handleStartNewConversation = () => {
+    if (isNewConversation) {
+      alert("当前正处于新会话，想要重新选课，请刷新页面");
+    }
+    else {
+      handleConversationIdChange('-1')
+    }
+  }
+
   return (
     <div className='bg-gray-100'>
       <Header
@@ -761,38 +1022,87 @@ const Main: FC = () => {
                     <div className="left-bottom">
                       <ContextUI
                         ref={contextUIRef}
-                        startNewConversation={() => handleConversationIdChange('-1')}
+                        startNewConversation={handleStartNewConversation}
                         suggestedQuestions={suggestQuestions}
                         isShowSuggestion={doShowSuggestion}
-                        onSend={handleSend}
+                        onSend={handleSendincontextUI}
                         updateContextUI={updateContextUI}
                         player={player_instance}
                         chatList={chatList}
                         currInputs={currInputs}
+                        activeModule={activeModule}
+                        setActiveModule={setActiveModule}
+                        questions_often={questions_often}
                       />
                     </div>
 
                     <div className="right">
-                      <Chat
-                        chatList={chatList}
-                        onSend={handleSend}
-                        onFeedback={handleFeedback}
-                        isResponsing={isResponsing}
-                        checkCanSend={checkCanSend}
-                        visionConfig={visionConfig}
-                        files={files}
-                        onUpload={onUpload}
-                        onRemove={onRemove}
-                        onReUpload={onReUpload}
-                        onImageLinkLoadError={onImageLinkLoadError}
-                        onImageLinkLoadSuccess={onImageLinkLoadSuccess}
-                        onClear={onClear}
-                        suggestedQuestions={suggestQuestions}
-                        isShowSuggestion={doShowSuggestion}
-                        player={player_instance}
-                        updateContextUI={callUpdateContextUI}
-                        currInputs={currInputs}
-                      />
+                      {activeModule === "InteractiveLearning" && (
+                        <Chat
+                          chatList={chatList}
+                          onSend={handleSend}
+                          onFeedback={handleFeedback}
+                          isResponsing={isResponsing}
+                          checkCanSend={checkCanSend}
+                          visionConfig={visionConfig}
+                          files={files}
+                          onUpload={onUpload}
+                          onRemove={onRemove}
+                          onReUpload={onReUpload}
+                          onImageLinkLoadError={onImageLinkLoadError}
+                          onImageLinkLoadSuccess={onImageLinkLoadSuccess}
+                          onClear={onClear}
+                          suggestedQuestions={suggestQuestions}
+                          isShowSuggestion={doShowSuggestion}
+                          player={player_instance}
+                          updateContextUI={callUpdateContextUI}
+                          currInputs={currInputs}
+                        />
+                      )}
+                      {activeModule === "SpeechReviewOptimization" && (
+                        <Chat
+                          chatList={chatList_speechReview}
+                          onSend={handleSendsimple}
+                          onFeedback={() => { }}
+                          isResponsing={isResponsing}
+                          checkCanSend={checkCanSend}
+                          visionConfig={visionConfig}
+                          files={[]}
+                          onUpload={() => { }}
+                          onRemove={() => { }}
+                          onReUpload={() => { }}
+                          onImageLinkLoadError={() => { }}
+                          onImageLinkLoadSuccess={() => { }}
+                          onClear={onClear}
+                          suggestedQuestions={[]}
+                          isShowSuggestion={false}
+                          player={player_instance}
+                          updateContextUI={callUpdateContextUI}
+                          currInputs={currInputs}
+                        />
+                      )}
+                      {activeModule === "InteractWithTeacher" && (
+                        <Chat
+                          chatList={chatList_interactWithTeacher}
+                          onSend={handleSendsimple}
+                          onFeedback={() => { }}
+                          isResponsing={isResponsing}
+                          checkCanSend={checkCanSend}
+                          visionConfig={visionConfig}
+                          files={[]}
+                          onUpload={() => { }}
+                          onRemove={() => { }}
+                          onReUpload={() => { }}
+                          onImageLinkLoadError={() => { }}
+                          onImageLinkLoadSuccess={() => { }}
+                          onClear={onClear}
+                          suggestedQuestions={[]}
+                          isShowSuggestion={false}
+                          player={player_instance}
+                          updateContextUI={callUpdateContextUI}
+                          currInputs={currInputs}
+                        />
+                      )}
                     </div>
 
                   </div>

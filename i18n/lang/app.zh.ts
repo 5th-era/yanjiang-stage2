@@ -6,7 +6,10 @@ const translation = {
   },
   chat: {
     newChat: '新对话',
-    reselectCourses: '重新选课',
+    reselectCourses: '选择课程',
+    InteractiveLearning: 'AI学习',
+    SpeechReviewOptimization: 'AI点评',
+    InteractWithTeacher: '关于木鱼',
     newChatDefaultName: '新的对话',
     openingStatementTitle: '对话开场白',
     powerBy: 'Powered by',
@@ -23,6 +26,8 @@ const translation = {
     screenShot: '获取当前课件的截图',
     tryToAsk: '试着问问',
     oftenQuestion: '常见问题',
+    questionArea: '提问区',
+    functionArea: '功能区',
   },
   errorMessage: {
     valueOfVarRequired: '变量值必填',

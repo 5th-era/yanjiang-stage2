@@ -21,15 +21,15 @@ const TryToAsk: FC<TryToAskProps> = ({
         <div>
             {!!questions_often?.length && (
                 <div>
-                    <div className='flex items-center mt-2.5 mb-2.5 py-2'>
+                    <div className='flex items-center mt-0 mb-0 py-2'>
                         <div
                             className='grow h-[1px]'
                             style={{
                                 background: 'linear-gradient(270deg, #F3F4F6 0%, rgba(243, 244, 246, 0) 100%)',
                             }}
                         />
-                        <div className='shrink-0 flex items-center px-3 text-gray-500'>
-                            <span className='text-xs text-gray-500 font-medium'>{t('app.chat.oftenQuestion')}</span>
+                        <div className='shrink-0 flex items-center px-3'>
+                            <span className='text-xs text-gray-500 font-medium'>{t('app.chat.questionArea')}</span>
                         </div>
                         <div
                             className='grow h-[1px]'
@@ -43,7 +43,7 @@ const TryToAsk: FC<TryToAskProps> = ({
                             questions_often.map((question_often, index) => (
                                 <Button
                                     key={index}
-                                    className='mb-2 mr-2 last:mr-0 px-3 py-[5px] bg-white text-primary-600 text-xs font-medium '
+                                    className='mb-0 mr-0 mr-0 last:mr-0 px-3 py-[5px] bg-white text-primary-600 text-xs font-medium '
                                     onClick={() => onSend(question_often)}
                                 >
                                     {question_often}
@@ -77,7 +77,7 @@ const TryToAsk: FC<TryToAskProps> = ({
                             suggestedQuestions.map((suggestQuestion, index) => (
                                 <Button
                                     key={index}
-                                    className='mb-2 mr-2 last:mr-0 px-3 py-[5px] bg-white text-primary-600 text-xs font-medium '
+                                    className='mt-0 mb-0 mr-0 last:mr-0 px-3 py-[5px] bg-white text-yellow-500 text-xs font-medium '
                                     onClick={() => onSend(suggestQuestion)}
                                 >
                                     {suggestQuestion}
