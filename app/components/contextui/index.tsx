@@ -223,8 +223,13 @@ ${query_video}
                 if (hasError)
                     return
 
-                // console.log("onCompleted:", responseItem.content)
-                setResponseContent(JSON.parse(responseItem.content))
+                // console.log("onCompleted:", responseItem.content)                
+                try {
+                    setResponseContent(JSON.parse(responseItem.content))
+                } catch (error) {
+                    console.error("Error parsing JSON:", error);
+                    // 这里可以添加更多的错误处理逻辑
+                }
             },
         })
     }
