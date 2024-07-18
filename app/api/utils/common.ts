@@ -19,6 +19,6 @@ export const setSession = (sessionId: string) => {
 }
 
 export const client = new ChatClient(API_KEY, API_URL || undefined)
-export const client_contextUI = new ChatClient('app-EAkiW8KWxKwGvTREuw33UQPP', API_URL || undefined)
+export const client_contextUI = new ChatClient('app-3nQl7W7oW5WDHgmh9UfsXEcX', API_URL || undefined)
 export const client_speechEvaluation = new ChatClient('app-Vztg0DBSrLrrDwLkZIQTjL5y', API_URL || undefined)
 export const client_aboutMuyu = new ChatClient('app-wKSp9w6Nd3frxCVfTwCNvkrH', API_URL || undefined)

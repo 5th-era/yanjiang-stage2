@@ -28,6 +28,8 @@ import videojs from 'video.js'
 import 'video.js/dist/video-js.css';
 import { useImageFiles } from '@/app/components/base/image-uploader/hooks'
 import Video_chapters from '../../public/class/video_chapters.json'
+import skills from '../../public/class/skills.json'
+import demos from '../../public/class/demos.json'
 
 const Main: FC = () => {
   const { t } = useTranslation()
@@ -58,6 +60,7 @@ const Main: FC = () => {
     transfer_methods: [TransferMethod.local_file],
   })
 
+  const [scene_english, setScene_english] = React.useState("self_introduction");
   const [activeModule, setActiveModule] = React.useState("InteractiveLearning");
   useEffect(() => {
     if (APP_INFO?.title)
@@ -105,19 +108,29 @@ const Main: FC = () => {
       return minutes * 60 + seconds;
     };
 
+    let scene = "self_introduction"
     if (currInputs && currInputs.scene === "自我介绍") {
-      videoJsOptions.sources = [
-        {
-          src: '/class/self_introduction.mp4',
-          type: 'video/mp4'
-        }
-      ]
-      videoJsOptions.chapters = Video_chapters['self_introduction'].map(chapter => ({
-        time: timeToSeconds(chapter.start),
-        label: chapter.content[0]
-      }));
-
+      scene = "self_introduction"
     }
+    else if (currInputs && currInputs.scene === "缓解紧张") {
+      scene = "ease_tension"
+    }
+    else if (currInputs && currInputs.scene === "酒宴祝词") {
+      scene = "banquet_toast"
+    }
+    setScene_english(scene)
+
+    videoJsOptions.sources = [
+      {
+        src: `/class/${scene}.mp4`,
+        type: 'video/mp4'
+      }
+    ]
+    videoJsOptions.chapters = Video_chapters[`${scene}`].map(chapter => ({
+      time: timeToSeconds(chapter.start),
+      label: chapter.content[0]
+    }));
+
   }, [currInputs])
 
   const {
@@ -133,6 +146,9 @@ const Main: FC = () => {
   const [player_instance, setPlayer_instance] = useState(null);
   const [conversationIdChangeBecauseOfNew, setConversationIdChangeBecauseOfNew, getConversationIdChangeBecauseOfNew] = useGetState(false)
   const [isChatStarted, { setTrue: setChatStarted, setFalse: setChatNotStarted }] = useBoolean(false)
+  const [currConversationId_speechReview, setCurrConversationId_speechReview] = useState(null)
+  const [currConversationId_interactWithTeacher, setCurrConversationId_interactWithTeacher] = useState(null)
+
   const handleStartChat = (inputs: Record<string, any>) => {
     createNewChat()
     setConversationIdChangeBecauseOfNew(true)
@@ -230,6 +246,8 @@ const Main: FC = () => {
   const [chatList_speechReview, setChatList_speechReview, getChatList_speechReview] = useGetState<ChatItem[]>([])
   const [chatList_interactWithTeacher, setChatList_interactWithTeacher, getChatList_interactWithTeacher] = useGetState<ChatItem[]>([])
   const chatListDomRef = useRef<HTMLDivElement>(null)
+  const [introduction_speechEavluation, setIntroduction_speechEavluation] = useGetState<string>('')
+  const [introduction_aboutMuyu, setIntroduction_aboutMuyu] = useGetState<string>('')
   // const playerRef = useRef(null)
   useEffect(() => {
     // scroll to bottom
@@ -293,6 +311,8 @@ const Main: FC = () => {
         const { opening_statement: introduction_speechEavluation, suggested_questions: suggested_questions_speechEavluation }: any = appParams_speechEvaluation
         const { opening_statement: introduction_aboutMuyu, suggested_questions: suggested_questions_aboutMuyu }: any = appParams_aboutMuyu
 
+        setIntroduction_speechEavluation(introduction_speechEavluation)
+        setIntroduction_aboutMuyu(introduction_aboutMuyu)
         setQuestions_often(
           {
             "InteractiveLearning": suggested_questions,
@@ -439,7 +459,18 @@ const Main: FC = () => {
       notify({ type: 'info', message: t('app.errorMessage.waitForResponse') })
       return
     }
-    message = `当前视频时间戳：${player_instance.currentTime().toFixed(2)} \n ${message}`
+    if (contextUIRef.current) {
+      const [currentScene, query_ppt, query_video, query_transcript, query_QA] = contextUIRef.current.prepare_context_by_timestamp();
+      message = `      
+${query_ppt}
+${query_video}
+${query_transcript}
+${currentScene}
+${message}
+      `
+    }
+    // console.log(message)
+    // message = `当前视频时间戳：${player_instance.currentTime().toFixed(2)} \n ${message}`
 
     const data: Record<string, any> = {
       inputs: currInputs,
@@ -756,17 +787,29 @@ const Main: FC = () => {
     }
   };
 
-
   const handleSendsimple = async (message: string, files?: VisionFile[]) => {
     if (isResponsing) {
       notify({ type: 'info', message: t('app.errorMessage.waitForResponse') })
       return
     }
+
+    let inputs = currInputs
+    let currconversation_id = null
+    if (activeModule === "SpeechReviewOptimization") {
+      inputs.skill = skills[scene_english]
+      inputs.demo = demos[scene_english]
+      currconversation_id = currConversationId_speechReview
+    }
+    else if (activeModule === "InteractWithTeacher") {
+      currconversation_id = currConversationId_interactWithTeacher
+    }
+    // console.log("currconversation_id is: ", currconversation_id)
+
     const data: Record<string, any> = {
-      inputs: currInputs,
+      inputs: inputs,
       query: message,
-      // conversation_id: isNewConversation ? null : currConversationId,
-      conversation_id: null,
+      // conversation_id: isNewConversation ? null : currconversation_id,
+      conversation_id: currconversation_id,
     }
 
     if (visionConfig?.enabled && files && files?.length > 0) {
@@ -852,8 +895,15 @@ const Main: FC = () => {
           hasSetResponseId = true
         }
 
-        if (isFirstMessage && newConversationId)
+        if (isFirstMessage && newConversationId) {
           tempNewConversationId = newConversationId
+          if (activeModule === "SpeechReviewOptimization") {
+            setCurrConversationId_speechReview(newConversationId)
+          }
+          else if (activeModule === "InteractWithTeacher") {
+            setCurrConversationId_interactWithTeacher(newConversationId)
+          }
+        }
 
         // setMessageTaskId(taskId)
         // // has switched to other conversation
@@ -965,6 +1015,10 @@ const Main: FC = () => {
     }
     else {
       handleConversationIdChange('-1')
+      setCurrConversationId_speechReview(null)
+      setCurrConversationId_interactWithTeacher(null)
+      setChatList_speechReview(generateNewChatListWithOpenstatement(introduction_speechEavluation, null))
+      setChatList_interactWithTeacher(generateNewChatListWithOpenstatement(introduction_aboutMuyu, null))
     }
   }
 

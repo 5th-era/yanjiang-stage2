@@ -28,6 +28,9 @@ const ContextUI = forwardRef(({
         if (activeModule !== module) {
             setActiveModule(module);
         }
+        if (module === "SpeechReviewOptimization" || module === "InteractWithTeacher") {
+            player.pause()
+        }
     };
 
     const parseTimeString = (timeString: String) => {
@@ -82,7 +85,7 @@ const ContextUI = forwardRef(({
         conversation_id: "",
     }
 
-    const prepare_context = (event) => {
+    const prepare_context_by_timestamp = () => {
         let current_time = `${getCurrentTime()}`
         let current_chat = chatList.slice(-2).map(item => item.content)
         if (current_chat[current_chat.length - 1] === "" && chatList.slice(-1)[0].agent_thoughts.length > 0) {
@@ -92,8 +95,14 @@ const ContextUI = forwardRef(({
         current_chat[current_chat.length - 1] = "Answer:" + current_chat[current_chat.length - 1]
 
         let current_scene = " "
-        if (currInputs.scene === "自我介绍") {
+        if (currInputs && currInputs.scene === "自我介绍") {
             current_scene = "self_introduction"
+        }
+        else if (currInputs && currInputs.scene === "缓解紧张") {
+            current_scene = "ease_tension"
+        }
+        else if (currInputs && currInputs.scene === "酒宴祝词") {
+            current_scene = "banquet_toast"
         }
         const PPT_content = findContent(current_time, current_scene, "PPT")
         // console.log(PPT_content)
@@ -106,6 +115,9 @@ const ContextUI = forwardRef(({
             "scene": currInputs.scene,
         }
 
+        const currentScene = `
+当前演讲场景为：${currInputs.scene}
+        `
         const query_ppt = `
 当前课程的PPT内容为：
 """
@@ -119,18 +131,23 @@ ${Video_content}
 """
         `
         const query_transcript = `
-当前课程的语音内容为：
+当前课程的文字内容为：
 """
 ${Transcript_content}
 """
         `
         const query_QA = `
-当前对话的内容为：
+上一轮对话的内容为：
 """
 ${current_chat.join('\n')}
 """
         `
 
+        return [currentScene, query_ppt, query_video, query_transcript, query_QA]
+    }
+
+    const prepare_context = (event) => {
+        const [currentScene, query_ppt, query_video, query_transcript, query_QA] = prepare_context_by_timestamp();
         if (event === "chat_new") {
             data.query = `
 ${query_QA}
@@ -219,7 +236,8 @@ ${query_video}
     };
 
     useImperativeHandle(ref, () => ({
-        update_contextUI
+        update_contextUI,
+        prepare_context_by_timestamp
     }));
 
     return (
