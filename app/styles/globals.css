@@ -191,6 +191,68 @@ a {
   color: #fff;
 }
 
+/* 确保外层容器限制内容宽度 */
+.right,
+.px-3\.5.h-full.flex.flex-col,
+.space-y-\[30px\].mb-10.overflow-y-auto.overflow-x-hidden,
+.style_answer__ikazH,
+.ml-2.py-3.px-4.bg-gray-100.rounded-tr-2xl.rounded-b-2xl {
+  max-width: 100%;
+  overflow-x: hidden;
+  word-break: break-word;
+}
+
+/* Markdown 内容样式 */
+.markdown-body {
+  max-width: 100%;
+  overflow-x: hidden;
+  word-wrap: break-word;
+}
+
+/* 代码块容器样式 */
+.markdown-body pre {
+  max-width: 100%;
+  background-color: #f6f8fa;
+  border-radius: 3px;
+  padding: 16px;
+  margin-bottom: 16px;
+  overflow-x: hidden;
+  word-break: break-word;
+}
+
+/* 代码块内容样式 */
+.markdown-body pre code {
+  display: inline-block;
+  overflow-x: hidden;
+  min-width: 100%;
+  white-space: pre;
+  word-wrap: normal;
+  word-break: break-word;
+}
+
+/* 使用 flexbox 来确保代码块不会超出容器 */
+.markdown-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.markdown-body pre {
+  display: flex;
+  flex-direction: column;
+}
+
+.markdown-body pre code {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 确保长单词在普通文本中可以换行 */
+.markdown-body p,
+.markdown-body li {
+  word-break: break-word;
+}
+
+
 /* 针对手机设备的布局 */
 @media (max-width: 768px) {
   .interaction-mode {
