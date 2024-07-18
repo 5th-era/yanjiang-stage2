@@ -19,7 +19,7 @@ export const VideoPlayer = (props) => {
 
     React.useEffect(() => {
         // Make sure Video.js player is only initialized once
-        if (!playerRef.current) {
+        if (!playerRef.current && options.sources[0].src != "") {
             // The Video.js player needs to be _inside_ the component el for React 18 Strict Mode. 
             const videoElement = document.createElement("video-js");
 
@@ -90,6 +90,16 @@ export const VideoPlayer = (props) => {
         } else {
             const player = playerRef.current;
         }
+
+        const player = playerRef.current;
+        if (player && options.sources && options.sources[0].src !== player.currentSrc()) {
+            // console.log("Updating video source to:", options.sources[0].src, player.currentSrc(), player.src());
+            player.pause();
+            player.src(options.sources);
+            player.load();
+            // console.log("now source:", player.currentSrc(), player.src());
+        }
+
     }, [options, onReady]);
 
     React.useEffect(() => {

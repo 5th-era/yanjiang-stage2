@@ -87,12 +87,18 @@ const ContextUI = forwardRef(({
 
     const prepare_context_by_timestamp = () => {
         let current_time = `${getCurrentTime()}`
-        let current_chat = chatList.slice(-2).map(item => item.content)
-        if (current_chat[current_chat.length - 1] === "" && chatList.slice(-1)[0].agent_thoughts.length > 0) {
-            current_chat[current_chat.length - 1] = chatList.slice(-1)[0].agent_thoughts.slice(-1)[0].thought
+        let current_chat = []
+        try {
+            current_chat = chatList.slice(-2).map(item => item.content)
+            if (current_chat[current_chat.length - 1] === "" && chatList.slice(-1)[0].agent_thoughts.length > 0) {
+                current_chat[current_chat.length - 1] = chatList.slice(-1)[0].agent_thoughts.slice(-1)[0].thought
+            }
+            current_chat[current_chat.length - 2] = "Question:" + current_chat[current_chat.length - 2]
+            current_chat[current_chat.length - 1] = "Answer:" + current_chat[current_chat.length - 1]
+        } catch (error) {
+            // console.error("Error parsing JSON:", error);
+            // 这里可以添加更多的错误处理逻辑
         }
-        current_chat[current_chat.length - 2] = "Question:" + current_chat[current_chat.length - 2]
-        current_chat[current_chat.length - 1] = "Answer:" + current_chat[current_chat.length - 1]
 
         let current_scene = " "
         if (currInputs && currInputs.scene === "自我介绍") {

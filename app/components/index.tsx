@@ -100,37 +100,46 @@ const Main: FC = () => {
     controls: true,
     responsive: true,
     fluid: true,
-  });
-
-  useEffect(() => {
-    const timeToSeconds = (time) => {
-      const [minutes, seconds] = time.split(':').map(Number);
-      return minutes * 60 + seconds;
-    };
-
-    let scene = "self_introduction"
-    if (currInputs && currInputs.scene === "自我介绍") {
-      scene = "self_introduction"
-    }
-    else if (currInputs && currInputs.scene === "缓解紧张") {
-      scene = "ease_tension"
-    }
-    else if (currInputs && currInputs.scene === "酒宴祝词") {
-      scene = "banquet_toast"
-    }
-    setScene_english(scene)
-
-    videoJsOptions.sources = [
+    sources: [
       {
-        src: `/class/${scene}.mp4`,
+        src: `/class/self_introduction.mp4`,
         type: 'video/mp4'
       }
     ]
-    videoJsOptions.chapters = Video_chapters[`${scene}`].map(chapter => ({
-      time: timeToSeconds(chapter.start),
-      label: chapter.content[0]
-    }));
+  });
 
+  const timeToSeconds = (time) => {
+    const [minutes, seconds] = time.split(':').map(Number);
+    return minutes * 60 + seconds;
+  };
+
+  useEffect(() => {
+    if (currInputs != null) {
+      let scene = ""
+      if (currInputs && currInputs.scene === "自我介绍") {
+        scene = "self_introduction"
+      }
+      else if (currInputs && currInputs.scene === "缓解紧张") {
+        scene = "ease_tension"
+      }
+      else if (currInputs && currInputs.scene === "酒宴祝词") {
+        scene = "banquet_toast"
+      }
+      setScene_english(scene)
+
+      if (scene != "") {
+        videoJsOptions.sources = [
+          {
+            src: `/class/${scene}.mp4`,
+            type: 'video/mp4'
+          }
+        ]
+        videoJsOptions.chapters = Video_chapters[`${scene}`].map(chapter => ({
+          time: timeToSeconds(chapter.start),
+          label: chapter.content[0]
+        }));
+      }
+    }
   }, [currInputs])
 
   const {
