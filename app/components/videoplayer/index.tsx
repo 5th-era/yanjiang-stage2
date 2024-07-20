@@ -26,10 +26,23 @@ export const VideoPlayer = (props) => {
             videoElement.classList.add('vjs-big-play-centered');
             videoRef.current.appendChild(videoElement);
 
-            const player = playerRef.current = videojs(videoElement, options, () => {
+            const player = playerRef.current = videojs(videoElement, {
+                ...options,
+                muted: false,  // 初始设置为非静音
+                playsinline: true,  // 启用iOS上的内联播放
+                autoplay: false,  // 禁用自动播放
+            }, () => {
                 // videojs.log('player is ready');
                 onReady && onReady(player);
+
             });
+
+            // Add touch event listener to unmute
+            // videoElement.addEventListener('touchstart', () => {
+            //     if (player.muted()) {
+            //         player.muted(false);
+            //     }
+            // }, { once: true });
 
             player.on('loadedmetadata', () => {
                 setVideoDuration(player.duration());
@@ -85,6 +98,24 @@ export const VideoPlayer = (props) => {
                     timeoutRef.current = null; // 清除 timeoutRef 的值
                 }, 300);
             });
+
+            // 添加点击事件监听器来启动播放
+            player.on('click', () => {
+                if (player.paused()) {
+                    player.play().catch(error => {
+                        console.log("Playback was prevented. User interaction is needed to start playback.");
+                        // 在这里可以添加一个提示，告诉用户需要点击播放
+                    });
+                } else {
+                    player.pause();
+                }
+            });
+
+            // 添加播放事件监听器
+            player.on('play', () => {
+                player.muted(false);  // 确保在播放时取消静音
+            });
+
             // You could update an existing player in the `else` block here
             // on prop change, for example:
         } else {
