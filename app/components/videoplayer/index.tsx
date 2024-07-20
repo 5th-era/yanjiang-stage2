@@ -99,17 +99,20 @@ export const VideoPlayer = (props) => {
                 }, 300);
             });
 
-            // 添加点击事件监听器来启动播放
-            player.on('click', () => {
-                if (player.paused()) {
-                    player.play().catch(error => {
-                        console.log("Playback was prevented. User interaction is needed to start playback.");
-                        // 在这里可以添加一个提示，告诉用户需要点击播放
-                    });
-                } else {
-                    player.pause();
-                }
-            });
+            // // 添加点击事件监听器来启动播放
+            // player.on('click', () => {
+            //     console.log("got here.")
+            //     if (player.paused()) {
+            //         console.log("got here 1.")
+            //         player.play().catch(error => {
+            //             console.log("Playback was prevented. User interaction is needed to start playback.");
+            //             // 在这里可以添加一个提示，告诉用户需要点击播放
+            //         });
+            //     } else {
+            //         console.log("got here 2.")
+            //         player.pause();
+            //     }
+            // });
 
             // 添加播放事件监听器
             player.on('play', () => {

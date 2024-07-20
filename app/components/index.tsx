@@ -141,11 +141,10 @@ const Main: FC = () => {
       }
 
       if (currInputs != null && currInputs.scene != null && currInputs.scene != "") {
-        // console.log("currInputs changed:\n", currInputs.scene)
         const _scene = `当前场景为：${currInputs.scene}\n`
         const _skill = `当前场景的演讲技巧为：\n${skills[`${scene}`]}\n`
         const _openstatement = `${introduction_speechEavluation}\n${_scene}\n${_skill}\n现在，请输入当前演讲场景下的演讲稿内容：`
-        console.log("openstatement:", _openstatement)
+        // console.log("openstatement:", _openstatement)
         setChatList_speechReview(generateNewChatListWithOpenstatement(_openstatement, null))
         setChatList_interactWithTeacher(generateNewChatListWithOpenstatement(introduction_aboutMuyu, null))
       }

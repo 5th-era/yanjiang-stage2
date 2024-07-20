@@ -203,7 +203,7 @@ const Chat: FC<IChatProps> = ({
       {
         !isHideSendInput && (
           <div className={cn(!feedbackDisabled && '!left-3.5 !right-3.5', 'z-10 bottom-0 left-0 right-0 mt-auto')}>
-            <div className='p-[5.5px] max-h-[150px] bg-white border-[0px] border-yellow-600 rounded-xl overflow-y-auto' style={{ "min-height": '40px' }}>
+            <div className='p-[5.5px] max-h-[150px] bg-white border-[0px] border-yellow-600 rounded-xl overflow-y-auto' style={{ minHeight: '40px' }}>
               {
                 visionConfig?.enabled && (
                   <>
@@ -241,7 +241,7 @@ const Chat: FC<IChatProps> = ({
                   placeholder="有问题，直接问。"
                   style={{ fontSize: '20px', fontWeight: 'bold' }}
                 />
-                <div className="bottom-2 right-6 flex items-center h-full" style={{ border: '2px solid rgb(200, 100, 0)', 'border-radius': '18px', 'margin-left': '2px' }}>
+                <div className="bottom-2 right-6 flex items-center h-full" style={{ border: '2px solid rgb(200, 100, 0)', borderRadius: '18px' }}>
                   <div
                     className={`${s.count} ml-2 text-sm bg-gray-50 text-gray-500`}
                     style={{ whiteSpace: 'nowrap', overflow: 'hidden' }}
