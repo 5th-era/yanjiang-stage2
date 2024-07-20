@@ -273,6 +273,12 @@ a {
   border-radius: 5px;
 }
 
+pre code {
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  overflow: auto !important;
+}
+
 /* 针对手机设备的布局 */
 @media (max-width: 768px) {
   .interaction-mode {
