@@ -21,7 +21,7 @@ const TryToAsk: FC<TryToAskProps> = ({
         <div>
             {!!questions_often?.length && (
                 <div>
-                    <div className='flex items-center mt-0 mb-0 py-2'>
+                    <div className='flex items-center mt-0 mb-0 py-1'>
                         <div
                             className='grow h-[1px]'
                             style={{

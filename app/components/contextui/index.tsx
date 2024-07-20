@@ -52,7 +52,7 @@ const ContextUI = forwardRef(({
         }
 
         if (!contents[subject]) {
-            content = "Subject not found.";
+            content = `content not found! subject is ${subject}, type is ${type}`;
             return content;
         }
 
@@ -110,6 +110,8 @@ const ContextUI = forwardRef(({
         else if (currInputs && currInputs.scene === "酒宴祝词") {
             current_scene = "banquet_toast"
         }
+        // console.log("current_scene:", current_scene)
+        // console.log("currInputs.scene:", currInputs.scene)
         const PPT_content = findContent(current_time, current_scene, "PPT")
         // console.log(PPT_content)
         const Video_content = findContent(current_time, current_scene, "Video")
@@ -253,7 +255,7 @@ ${query_video}
 
     return (
         <div className="context-container flex flex-col justify-center">
-            <div className='flex items-center mt-0 mb-0 py-2'>
+            <div className='flex items-center mt-0 mb-0 py-1'>
                 <div
                     className='grow h-[1px]'
                     style={{
@@ -317,7 +319,7 @@ ${query_video}
                     )
                 }
             </div> */}
-            <div className="flex justify-center space-x-3 mb-3">
+            <div className="flex justify-center space-x-3 mb-0">
                 {/* <label>{responseContent}</label> */}
                 {
                     (!!responseContent?.length || !!questions_often[activeModule]?.length) && (

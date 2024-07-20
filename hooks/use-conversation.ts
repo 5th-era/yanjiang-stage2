@@ -39,10 +39,10 @@ function useConversation() {
     }))
   }
   const [existConversationInputs, setExistConversationInputs] = useState<Record<string, any> | null>(null)
-  // const currInputs = isNewConversation ? newConversationInputs : existConversationInputs
-  // const setCurrInputs = isNewConversation ? setNewConversationInputs : setExistConversationInputs
-  const currInputs = newConversationInputs
-  const setCurrInputs = setNewConversationInputs
+  const currInputs = isNewConversation ? newConversationInputs : existConversationInputs
+  const setCurrInputs = isNewConversation ? setNewConversationInputs : setExistConversationInputs
+  // const currInputs = newConversationInputs
+  // const setCurrInputs = setNewConversationInputs
 
   // info is muted
   const [newConversationInfo, setNewConversationInfo] = useState<ConversationInfoType | null>(null)

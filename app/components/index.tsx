@@ -475,7 +475,7 @@ ${query_ppt}
 ${query_video}
 ${query_transcript}
 ${currentScene}
-${message}
+用户问题：${message}
       `
     }
     // console.log(message)
@@ -1082,7 +1082,7 @@ ${message}
                       />
                     </div>
 
-                    <div className="left-bottom">
+                    <div className="left-bottom mb-1">
                       <ContextUI
                         ref={contextUIRef}
                         startNewConversation={handleStartNewConversation}

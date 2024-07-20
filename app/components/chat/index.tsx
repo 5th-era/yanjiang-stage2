@@ -181,7 +181,7 @@ const Chat: FC<IChatProps> = ({
               id={item.id}
               // content={item.content}
               // content={item.content.split('\n').filter(line => !line.startsWith("当前视频时间戳")).join('\n')}
-              content={item.content.split('\n').slice(item.content.split('\n').findIndex(line => line.includes("当前演讲场景为：")) + 1).join('\n')}
+              content={item.content.split('\n').slice(item.content.split('\n').findIndex(line => line.includes("当前演讲场景为：")) + 1).join('\n').replace(/用户问题：\s*/, '')}
 
               useCurrentUserAvatar={useCurrentUserAvatar}
               imgSrcs={(item.message_files && item.message_files?.length > 0) ? item.message_files.map(item => item.url) : []}

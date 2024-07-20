@@ -216,8 +216,9 @@ a {
   border-radius: 3px;
   padding: 16px;
   margin-bottom: 16px;
-  overflow-x: hidden;
-  word-break: break-word;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 /* 代码块内容样式 */
@@ -226,8 +227,8 @@ a {
   overflow-x: hidden;
   min-width: 100%;
   white-space: pre;
-  word-wrap: normal;
-  word-break: break-word;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 /* 使用 flexbox 来确保代码块不会超出容器 */
@@ -257,8 +258,8 @@ a {
 @media (max-width: 768px) {
   .interaction-mode {
     grid-template-columns: 1fr;
-    grid-template-rows: 3fr 2fr 4fr;
-    width: 100%;
+    grid-template-rows: 3fr 2fr 6fr;
+    width: 100vw;
     height: 100%;
   }
 
@@ -289,7 +290,7 @@ a {
     width: 100%;
     height: 100%;
     display: block;
-    margin-top: 10px;
+    margin-top: 0px;
   }
 
 }
