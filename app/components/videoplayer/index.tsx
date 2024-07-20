@@ -290,7 +290,7 @@ export const VideoPlayer = (props) => {
                                         background: isHovered ? '#777' : getChapterBackground(chapter.time, chapterEnd),
                                         color: '#fff',
                                         textAlign: 'center',
-                                        padding: '10px 0', // 仅顶部和底部填充
+                                        padding: '0px 0', // 仅顶部和底部填充
                                         overflow: 'hidden',
                                         whiteSpace: 'nowrap',
                                         textOverflow: 'ellipsis',
