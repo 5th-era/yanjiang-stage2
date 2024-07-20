@@ -11,11 +11,33 @@ export const VideoPlayer = (props) => {
     const imgRef = React.useRef(null);
     const lastChapterRef = React.useRef(null);
 
+    const [timeoutId, setTimeoutId] = React.useState(null);
     const { options, onReady, onUpload, files, updateContextUI, currInputs } = props;
     const [videoDuration, setVideoDuration] = React.useState(0);
     const [currentTime, setCurrentTime] = React.useState(0);
     const [hoveredChapter, setHoveredChapter] = React.useState(null);
     const timeoutRef = React.useRef(null);
+
+
+    function updatePlayerSource(options) {
+        // 取消先前的定时器
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+        }
+
+        // 设置新的定时器
+        const _timeout_id = setTimeout(() => {
+            const player = playerRef.current;
+            if (player && options.sources && options.sources[0].src !== player.currentSrc()) {
+                // console.log("Updating video source to:", options.sources[0].src, player.currentSrc(), player.src());
+                player.pause();
+                player.src(options.sources);
+                player.load();
+                // console.log("now source:", player.currentSrc(), player.src());
+            }
+        }, 500);
+        setTimeoutId(_timeout_id)
+    }
 
     React.useEffect(() => {
         // Make sure Video.js player is only initialized once
@@ -125,14 +147,15 @@ export const VideoPlayer = (props) => {
             const player = playerRef.current;
         }
 
-        const player = playerRef.current;
-        if (player && options.sources && options.sources[0].src !== player.currentSrc()) {
-            // console.log("Updating video source to:", options.sources[0].src, player.currentSrc(), player.src());
-            player.pause();
-            player.src(options.sources);
-            player.load();
-            // console.log("now source:", player.currentSrc(), player.src());
-        }
+        // const player = playerRef.current;
+        // if (player && options.sources && options.sources[0].src !== player.currentSrc()) {
+        //     // console.log("Updating video source to:", options.sources[0].src, player.currentSrc(), player.src());
+        //     player.pause();
+        //     player.src(options.sources);
+        //     player.load();
+        //     // console.log("now source:", player.currentSrc(), player.src());
+        // }
+        updatePlayerSource(options);
 
     }, [options, onReady]);
 
