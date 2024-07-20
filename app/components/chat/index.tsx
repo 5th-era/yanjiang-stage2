@@ -17,6 +17,7 @@ import ImageList from '@/app/components/base/image-uploader/image-list'
 import { useImageFiles } from '@/app/components/base/image-uploader/hooks'
 import { XCircle } from '@/app/components/base/icons/solid/general'
 import TryToAsk from '@/app/components/chat/try-to-ask'
+import useKeyboardVisible from '@/hooks/useKeyboardVisible'
 
 export type IChatProps = {
   chatList: ChatItem[]
@@ -78,6 +79,8 @@ const Chat: FC<IChatProps> = ({
   const isUseInputMethod = useRef(false)
 
   const [query, setQuery] = React.useState('')
+
+  const isKeyboardVisible = useKeyboardVisible();
 
   const handleContentChange = (e: any) => {
     const value = e.target.value
@@ -200,7 +203,7 @@ const Chat: FC<IChatProps> = ({
       {
         !isHideSendInput && (
           <div className={cn(!feedbackDisabled && '!left-3.5 !right-3.5', 'z-10 bottom-0 left-0 right-0 mt-auto')}>
-            <div className='p-[5.5px] max-h-[150px] bg-white border-[2.5px] border-yellow-600 rounded-xl overflow-y-auto'>
+            <div className='p-[5.5px] max-h-[150px] bg-white border-[0px] border-yellow-600 rounded-xl overflow-y-auto' style={{ "min-height": '40px' }}>
               {
                 visionConfig?.enabled && (
                   <>
@@ -224,10 +227,10 @@ const Chat: FC<IChatProps> = ({
                   </>
                 )
               }
-              <div className='flex items-center justify-between'>
+              <div className={`flex items-center justify-between input-container ${isKeyboardVisible ? 'keyboard-visible' : ''}`}>
                 <Textarea
                   className={`
-                  block w-full px-2 pr-[1px] py-[1px] leading-5 max-h-none text-sm text-gray-700 outline-none appearance-none resize-none 
+                  custom-input block w-full px-2 pr-[1px] py-[1px] leading-5 max-h-none text-sm text-gray-700 outline-none appearance-none resize-none 
                   ${visionConfig?.enabled && 'pl-12'}
                 `}
                   value={query}
@@ -238,9 +241,9 @@ const Chat: FC<IChatProps> = ({
                   placeholder="有问题，直接问。"
                   style={{ fontSize: '20px', fontWeight: 'bold' }}
                 />
-                <div className="bottom-2 right-6 flex items-center h-8">
+                <div className="bottom-2 right-6 flex items-center h-full" style={{ border: '2px solid rgb(200, 100, 0)', 'border-radius': '18px', 'margin-left': '2px' }}>
                   <div
-                    className={`${s.count} text-sm bg-gray-50 text-gray-500`}
+                    className={`${s.count} ml-2 text-sm bg-gray-50 text-gray-500`}
                     style={{ whiteSpace: 'nowrap', overflow: 'hidden' }}
                   >{query.trim().length}</div>
                   {
@@ -279,7 +282,7 @@ const Chat: FC<IChatProps> = ({
           </div>
         )
       }
-    </div>
+    </div >
   )
 }
 
